@@ -8,18 +8,14 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Toaster } from "@/components/ui/sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Editor } from "@/features/editor/ui";
 import Media from "@/features/editor/ui/media";
+import SingleSelectMain from "@/features/funnel-components/Select/ui/SingleSelectMain";
 import { evaluate } from "@mdx-js/mdx";
-import { Edit, PlusSquareIcon, SaveIcon } from "lucide-react";
+import matter from "gray-matter";
+import { Edit, SaveIcon } from "lucide-react";
 import { createElement, useCallback, useEffect, useState } from "react";
 import * as runtime from "react/jsx-runtime";
 import remarkGfm from "remark-gfm";
@@ -46,6 +42,23 @@ function Constructor({
           Button: (props) => {
             return <Button>{props.children}</Button>;
           },
+          SingleDefaultQuiz: (props: { options: string }) => {
+            const options = JSON.parse(props.options) as {
+              label: string;
+              value: string;
+            }[];
+            console.log(options)
+            return (
+              <SingleSelectMain
+                options={options.map((option) => ({
+                  title: option.label,
+                  custom_id: option.value,
+                }))}
+                selectedOptionId={undefined}
+                onChangeOption={() => {}}
+              />
+            );
+          },
         }),
         remarkPlugins: [remarkGfm],
       });
@@ -56,7 +69,8 @@ function Constructor({
     }
   }, []);
   useEffect(() => {
-    parseMDX(markdown);
+    const { content } = matter(markdown);
+    parseMDX(content);
   }, [parseMDX, markdown]);
   return (
     <>
@@ -81,17 +95,6 @@ function Constructor({
             </BreadcrumbList>
           </Breadcrumb>
           <div className="flex items-center gap-2">
-            <DropdownMenu>
-              <DropdownMenuTrigger>
-                <Button variant={"secondary"}>
-                  <PlusSquareIcon />
-                  Add Component
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem>Button</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
             <Button
               onClick={async () => {
                 await saveMdxFile(quizVersion, pageId, markdown);

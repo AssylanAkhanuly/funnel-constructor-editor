@@ -1,5 +1,6 @@
 "use client";
 // InitializedMDXEditor.tsx
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,7 +10,6 @@ import {
 import {
   BlockTypeSelect,
   BoldItalicUnderlineToggles,
-  Button,
   frontmatterPlugin,
   headingsPlugin,
   InsertFrontmatter,
@@ -28,11 +28,17 @@ import {
   type MDXEditorProps,
 } from "@mdxeditor/editor";
 import "@mdxeditor/editor/style.css";
-import { ImageIcon, MousePointerClickIcon, PlusSquareIcon } from "lucide-react";
+import {
+  CircleQuestionMark,
+  ImageIcon,
+  MousePointerClickIcon,
+  PlusSquareIcon,
+} from "lucide-react";
 import type { ForwardedRef } from "react";
 import { CustomMDXProps } from "../types";
 import ButtonEditor from "./button-editor";
 import MediaEditor from "./media-editor";
+import OptionsEditor from "./single-default-quiz-editor";
 
 const jsxComponentDescriptors: JsxComponentDescriptor[] = [
   {
@@ -52,6 +58,13 @@ const jsxComponentDescriptors: JsxComponentDescriptor[] = [
     hasChildren: true,
     Editor: ButtonEditor,
   },
+  {
+    name: "SingleDefaultQuiz",
+    kind: "flow",
+    props: [],
+    hasChildren: true,
+    Editor: OptionsEditor,
+  },
 ];
 
 const InsertImage = ({
@@ -64,8 +77,10 @@ const InsertImage = ({
   const insertJsx = usePublisher(insertJsx$);
   return (
     <Button
-      title="Insert Upload"
-      className="w-full flex items-center gap-2"
+      variant="ghost"
+      title="Insert Media"
+      size={"sm"}
+      className="flex items-center gap-2"
       onClick={() =>
         insertJsx({
           name: "Image",
@@ -87,18 +102,49 @@ const InsertButton = () => {
   const insertJsx = usePublisher(insertJsx$);
   return (
     <Button
+      variant="ghost"
       title="Insert Button"
-      className="w-full flex items-center gap-2"
+      size={"sm"}
+      className="flex items-center gap-2"
       onClick={() =>
         insertJsx({
           name: "Button",
           kind: "flow",
-          props: {},
+          props: {
+            children: "Button Text",
+          },
         })
       }
     >
       <MousePointerClickIcon className="size-5" />
       Button
+    </Button>
+  );
+};
+const InsertSingleDefault = () => {
+  const insertJsx = usePublisher(insertJsx$);
+  return (
+    <Button
+      variant="ghost"
+      title="Insert Single Default Quiz"
+      size={"sm"}
+      className="flex items-center gap-2"
+      onClick={() =>
+        insertJsx({
+          name: "SingleDefaultQuiz",
+          kind: "flow",
+          children: [],
+          props: {
+            options: JSON.stringify([
+              { label: "Option 1", value: "option1" },
+              { label: "Option 2", value: "option2" },
+            ]),
+          },
+        })
+      }
+    >
+      <CircleQuestionMark className="size-5" />
+      Single Default Quiz
     </Button>
   );
 };
@@ -141,6 +187,9 @@ export default function InitializedMDXEditor({
                   </DropdownMenuItem>
                   <DropdownMenuItem>
                     <InsertButton />
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <InsertSingleDefault />
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
