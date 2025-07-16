@@ -6,6 +6,7 @@ import {
 } from "@aws-sdk/client-s3";
 
 const s3 = new S3Client({
+  requestStreamBufferSize: 32 * 1024,
   region: "us-east-1",
   credentials: {
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
@@ -14,6 +15,7 @@ const s3 = new S3Client({
 });
 
 export const quizFolderPath = "quiz";
+export const mediaFolderPath = "media";
 async function streamToString(stream: any) {
   const chunks = [];
   for await (const chunk of stream) {
@@ -45,12 +47,16 @@ export async function listFilesInFolder(folderPath = "test") {
   return fileContents;
 }
 
-export async function uploadMdxFile(filename: string, mdxContent: string) {
+export async function uploadFile(
+  filename: string,
+  content: string | File | Buffer,
+  contentType = "text/markdown"
+) {
   const command = new PutObjectCommand({
     Bucket: process.env.AWS_BUCKET,
     Key: filename, // e.g., "docs/page.mdx"
-    Body: mdxContent, // string
-    ContentType: "text/markdown", // or "text/x-markdown" or "text/plain"
+    Body: content, // string
+    ContentType: contentType, // or "text/x-markdown" or "text/plain"
   });
 
   await s3.send(command);

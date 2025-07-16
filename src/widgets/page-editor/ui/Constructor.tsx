@@ -8,12 +8,19 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Toaster } from "@/components/ui/sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Editor } from "@/features/editor/ui";
+import Media from "@/features/editor/ui/media";
 import { evaluate } from "@mdx-js/mdx";
-import { Edit, SaveIcon } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { Edit, PlusSquareIcon, SaveIcon } from "lucide-react";
+import { createElement, useCallback, useEffect, useState } from "react";
 import * as runtime from "react/jsx-runtime";
 import remarkGfm from "remark-gfm";
 import { toast } from "sonner";
@@ -34,7 +41,9 @@ function Constructor({
     try {
       const { default: Content } = await evaluate(content, {
         ...runtime,
-        useMDXComponents: () => ({}),
+        useMDXComponents: () => ({
+          Image: Media,
+        }),
         remarkPlugins: [remarkGfm],
       });
       setPreview(() => Content);
@@ -43,7 +52,6 @@ function Constructor({
       setPreview(() => () => <div>Error parsing markdown</div>);
     }
   }, []);
-
   useEffect(() => {
     parseMDX(markdown);
   }, [parseMDX, markdown]);
@@ -70,6 +78,17 @@ function Constructor({
             </BreadcrumbList>
           </Breadcrumb>
           <div className="flex items-center gap-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger>
+                <Button variant={"secondary"}>
+                  <PlusSquareIcon />
+                  Add Component
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem>Button</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <Button
               onClick={async () => {
                 await saveMdxFile(quizVersion, pageId, markdown);
@@ -96,11 +115,15 @@ function Constructor({
 
           <TabsContent value="editor" className="flex-1 p-4 flex">
             <Editor
+              quizVersion={quizVersion}
+              pageId={pageId}
               className="flex-1"
               markdown={markdown}
               onChange={setMarkdown}
             />
-            <div className="flex-1 p-4">{Preview && <Preview />}</div>
+            <div className="flex-1 p-4">
+              {Preview && createElement(Preview)}
+            </div>
           </TabsContent>
         </Tabs>
       </div>

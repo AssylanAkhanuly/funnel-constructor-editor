@@ -6,7 +6,7 @@ import {
   listFilesInFolder,
   listSubfolders,
   quizFolderPath,
-  uploadMdxFile,
+  uploadFile,
 } from "@/shared/lib/s3";
 import matter from "gray-matter";
 import { revalidatePath } from "next/cache";
@@ -36,7 +36,7 @@ type: ${type}
 ---
 `;
   const filename = `${quizFolderPath}/${quizVersion}/${id}.mdx`;
-  await uploadMdxFile(filename, frontmatter);
+  await uploadFile(filename, frontmatter);
   revalidatePath(`/${quizVersion}`);
   return;
 };
