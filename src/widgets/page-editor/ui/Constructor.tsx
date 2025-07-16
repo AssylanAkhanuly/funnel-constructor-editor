@@ -11,8 +11,11 @@ import { Button } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Editor } from "@/features/editor/ui";
+import { evaluate } from "@mdx-js/mdx";
 import { Edit, SaveIcon } from "lucide-react";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import * as runtime from "react/jsx-runtime";
+import remarkGfm from "remark-gfm";
 import { toast } from "sonner";
 import { saveMdxFile } from "../actions";
 function Constructor({
@@ -26,7 +29,24 @@ function Constructor({
 }) {
   const [activeTab, setActiveTab] = useState("editor");
   const [markdown, setMarkdown] = useState(page.content);
+  const [Preview, setPreview] = useState<React.ComponentType | null>(null);
+  const parseMDX = useCallback(async (content: string) => {
+    try {
+      const { default: Content } = await evaluate(content, {
+        ...runtime,
+        useMDXComponents: () => ({}),
+        remarkPlugins: [remarkGfm],
+      });
+      setPreview(() => Content);
+    } catch (error) {
+      console.error("MDX parsing error:", error);
+      setPreview(() => () => <div>Error parsing markdown</div>);
+    }
+  }, []);
 
+  useEffect(() => {
+    parseMDX(markdown);
+  }, [parseMDX, markdown]);
   return (
     <>
       <Toaster />
@@ -74,8 +94,13 @@ function Constructor({
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="editor" className="flex-1 p-4">
-            <Editor markdown={markdown} onChange={setMarkdown} />
+          <TabsContent value="editor" className="flex-1 p-4 flex">
+            <Editor
+              className="flex-1"
+              markdown={markdown}
+              onChange={setMarkdown}
+            />
+            <div className="flex-1 p-4">{Preview && <Preview />}</div>
           </TabsContent>
         </Tabs>
       </div>
