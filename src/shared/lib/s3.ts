@@ -1,8 +1,8 @@
 import {
-  GetObjectCommand,
+  DeleteObjectCommand, GetObjectCommand,
   ListObjectsV2Command,
   PutObjectCommand,
-  S3Client,
+  S3Client
 } from "@aws-sdk/client-s3";
 
 const s3 = new S3Client({
@@ -98,4 +98,14 @@ export async function getFile(filePath: string) {
   const content = await streamToString(response.Body);
 
   return { key: filePath, content };
+}
+
+export async function deleteFile(filePath: string) {
+  const command = new DeleteObjectCommand({
+    Bucket: process.env.AWS_BUCKET,
+    Key: filePath,
+  });
+
+  await s3.send(command);
+ 
 }

@@ -16,7 +16,10 @@ import {
   useSortable,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { useState } from "react";
+import he from "he";
+import parse from "html-react-parser";
+import { useEffect, useState } from "react";
+import { deleteQuizPage, updateQuizPageFrontmatter } from "../actions";
 import { Page } from "../types";
 import QuizPagesHeader from "./quiz-pages-header";
 
@@ -27,12 +30,14 @@ function SortablePageCard({
   id,
   selected,
   quizVersion,
+  onDelete,
 }: {
   page: Page;
   onClick: () => void;
   id: string;
   selected: boolean;
   quizVersion: string;
+  onDelete?: () => void;
 }) {
   const {
     attributes,
@@ -52,6 +57,7 @@ function SortablePageCard({
 
   return (
     <div
+      id={id}
       ref={setNodeRef}
       style={style}
       {...attributes}
@@ -66,6 +72,7 @@ function SortablePageCard({
         }}
         quizVersion={quizVersion}
         onClick={onClick}
+        onDelete={onDelete}
       />
     </div>
   );
@@ -147,15 +154,86 @@ export default function QuizPagesList({
         },
       };
     }
-    newPages.filter((newPage) => {
+    newPages.map((newPage) => {
       const page = pagesMap.get(newPage.key);
       if (page && newPage.frontmatter.order !== page.frontmatter.order) {
+        console.log(newPage.frontmatter.order, page.frontmatter.order);
         // TODO: update frontmatter props in S3
+        updateQuizPageFrontmatter(quizVersion, page.frontmatter.id, {
+          order: newPage.frontmatter.order,
+        });
       }
     });
     setPages(newPages);
   }
 
+  useEffect(() => {
+    pages.forEach((page, index) => {
+      let quizOptions: Array<{
+        label: string;
+        value: string;
+        next?: string;
+      }> = [];
+
+      parse(page.content, {
+        trim: true,
+        replace: (domNode: import("html-react-parser").Element) => {
+          if (
+            domNode.type === "tag" &&
+            domNode.name === "SingleDefaultQuiz".toLowerCase() &&
+            domNode.attribs &&
+            domNode.attribs.options
+          ) {
+            try {
+              const decoded = he.decode(domNode.attribs.options);
+              quizOptions = JSON.parse(decoded);
+            } catch {
+              quizOptions = [];
+            }
+          }
+        },
+      });
+      const currentEl = document.getElementById(page.frontmatter.id);
+      if (currentEl) {
+        quizOptions.forEach((option) => {
+          if (option.next) {
+            const nextEl = document.getElementById(option.next);
+            if (nextEl) {
+              // Create a line between currentEl and nextEl
+              const lineId = `${page.frontmatter.id}-${option.next}-line`;
+              let line = document.getElementById(
+                lineId
+              ) as HTMLDivElement | null;
+              if (!line) {
+                line = document.createElement("div");
+                line.id = lineId;
+                line.style.position = "absolute";
+                line.style.pointerEvents = "none";
+                line.style.background = "#3b82f6";
+                line.style.height = "12px";
+                line.style.zIndex = "40";
+                document.body.appendChild(line);
+              }
+              // Calculate positions
+              const rect1 = currentEl.getBoundingClientRect();
+              const rect2 = nextEl.getBoundingClientRect();
+              const parentRect = { left: 0, top: 0 };
+
+              const x1 = rect1.right - parentRect.left;
+              const y1 = rect1.top + rect1.height / 2 - parentRect.top;
+              const x2 = rect2.left - parentRect.left;
+              const y2 = rect2.top + rect2.height / 2 - parentRect.top;
+              const length = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+              const angle = Math.atan2(y2 - y1, x2 - x1) * (180 / Math.PI);
+              line.style.width = `${length}px`;
+              console.log(x1,y1)
+              line.style.transform = `translate(${x1}px, ${y1}px) rotate(${angle}deg)`;
+            }
+          }
+        });
+      }
+    });
+  }, [pages]);
   return (
     <div className="w-full min-h-screen bg-gray-50">
       <QuizPagesHeader quizVersion={quizVersion} />
@@ -174,16 +252,28 @@ export default function QuizPagesList({
                 strategy={horizontalListSortingStrategy}
               >
                 <div className="flex justify-center gap-6">
-                  {groupPages.map((page) => (
-                    <SortablePageCard
-                      quizVersion={quizVersion}
-                      key={page.key}
-                      id={page.key}
-                      page={page}
-                      onClick={() => setSelectedPage(page)}
-                      selected={selectedPage?.key === page.key}
-                    />
-                  ))}
+                  {groupPages.map((page) => {
+                    // Extract <SingleDefaultQuiz options="..."/> from markdown content using html-react-parser only
+
+                    return (
+                      <div
+                        id={page.frontmatter.id}
+                        key={page.key}
+                        className="relative flex flex-col items-center"
+                      >
+                        <SortablePageCard
+                          onDelete={() =>
+                            deleteQuizPage(quizVersion, page.frontmatter.id)
+                          }
+                          quizVersion={quizVersion}
+                          id={page.key}
+                          page={page}
+                          onClick={() => setSelectedPage(page)}
+                          selected={selectedPage?.key === page.key}
+                        />
+                      </div>
+                    );
+                  })}
                 </div>
               </SortableContext>
             ))}

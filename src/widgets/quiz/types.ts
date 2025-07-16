@@ -13,5 +13,6 @@ export type PageFrontmatterType = {
 
 export type Page = {
   frontmatter: PageFrontmatterType;
+  content: string;
   key: string;
 };

@@ -8,7 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cva, VariantProps } from "class-variance-authority";
-import { Edit, Settings } from "lucide-react";
+import { Edit, Settings, Trash } from "lucide-react";
 import Link from "next/link";
 import { HTMLAttributes } from "react";
 import { twMerge } from "tailwind-merge";
@@ -26,11 +26,13 @@ const PageCard = ({
   state,
   page,
   quizVersion: quizVersion,
+  onDelete,
   ...props
 }: VariantProps<typeof variants> &
   HTMLAttributes<HTMLDivElement> & {
     page: { id: string; order: string; type: "teaser" | "quiz" };
     quizVersion: string;
+    onDelete?: () => void;
   }) => {
   return (
     <Card {...props} className={twMerge(variants({ state, className }))}>
@@ -61,6 +63,10 @@ const PageCard = ({
                   <Edit />
                 </DropdownMenuItem>
               </Link>
+              <DropdownMenuItem onClick={onDelete} variant="destructive">
+                Delete
+                <Trash />
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
