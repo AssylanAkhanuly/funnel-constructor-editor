@@ -1,4 +1,4 @@
-import Constructor from "@/widgets/page-editor/ui/Constructor";
+import Constructor from "@/widgets/page-editor/ui/constructor";
 import { getPage } from "@/widgets/quiz/actions";
 
 const page = async (props: {
@@ -7,7 +7,13 @@ const page = async (props: {
   const params = await props.params;
   const page = await getPage(params.quiz_version, params.pageId);
 
-  return <Constructor page={page} />;
+  return (
+    <Constructor
+      page={page}
+      pageId={params.pageId}
+      quizVersion={params.quiz_version}
+    />
+  );
 };
 
 export default page;
