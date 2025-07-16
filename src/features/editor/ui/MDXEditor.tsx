@@ -52,10 +52,10 @@ const jsxComponentDescriptors: JsxComponentDescriptor[] = [
     Editor: MediaEditor,
   },
   {
-    name: "Button",
+    name: "FooterButton",
     kind: "flow",
-    props: [],
-    hasChildren: true,
+    props: [{ name: "text", type: "string" }],
+    hasChildren: false,
     Editor: ButtonEditor,
   },
   {
@@ -108,10 +108,10 @@ const InsertButton = () => {
       className="flex items-center gap-2"
       onClick={() =>
         insertJsx({
-          name: "Button",
+          name: "FooterButton",
           kind: "flow",
           props: {
-            children: "Button Text",
+            text: "Button Text",
           },
         })
       }

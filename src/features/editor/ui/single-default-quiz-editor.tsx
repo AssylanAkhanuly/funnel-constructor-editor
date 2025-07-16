@@ -10,97 +10,106 @@ import { v4 as uuidv4 } from "uuid";
 import z from "zod";
 
 const validator = z.object({
-    options: z.array(
-        z.object({
-            label: z.string().min(1, "Label is required"),
-            value: z.string().min(1, "Value is required"),
-        })
-    ),
+  options: z.array(
+    z.object({
+      label: z.string().min(1, "Label is required"),
+      value: z.string().min(1, "Value is required"),
+      next: z.string().optional(), // next page id (optional)
+    })
+  ),
 });
 
 type FormValues = z.infer<typeof validator>;
 
 const OptionsEditor = (props: JsxEditorProps) => {
-    const updateNode = useMdastNodeUpdater();
-    const form = useForm<FormValues>({
-        resolver: zodResolver(validator),
-        defaultValues: {
-            options: [{ label: "", value: uuidv4() }],
+  const updateNode = useMdastNodeUpdater();
+  const form = useForm<FormValues>({
+    resolver: zodResolver(validator),
+    defaultValues: {
+      options: [{ label: "", value: uuidv4(), next: "" }],
+    },
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "options",
+  });
+
+  const onSubmit = (data: FormValues) => {
+    updateNode({
+      ...props.mdastNode,
+      attributes: [
+        {
+          name: "options",
+          type: "mdxJsxAttribute",
+          value: JSON.stringify(data.options),
         },
+      ],
     });
+  };
 
-    const { fields, append, remove } = useFieldArray({
-        control: form.control,
-        name: "options",
-    });
-
-    const onSubmit = (data: FormValues) => {
-        updateNode({
-            ...props.mdastNode,
-            attributes: [
-                {
-                    name: "options",
-                    type: "mdxJsxAttribute",
-                    value: JSON.stringify(data.options),
-                },
-            ],
-        });
-    };
-
-    return (
-        <div className="p-4 space-y-2 border rounded-lg bg-background">
-            <h3 className="font-semibold">Options Editor</h3>
-            <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                    {fields.map((field, idx) => (
-                        <FormItem key={field.id}>
-                            <FormLabel>Option {idx + 1}</FormLabel>
-                            <div className="flex items-center gap-2">
-                                <Input
-                                    {...form.register(`options.${idx}.label`)}
-                                    placeholder="Label"
-                                />
-                                <Input
-                                    {...form.register(`options.${idx}.value`)}
-                                    placeholder="Value"
-                                    readOnly
-                                    className="w-40"
-                                />
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    size="icon"
-                                    onClick={() => remove(idx)}
-                                    disabled={fields.length === 1}
-                                    aria-label="Remove option"
-                                >
-                                    <Trash size={16} />
-                                </Button>
-                            </div>
-                            <FormMessage>
-                                {form.formState.errors.options?.[idx]?.label?.message}
-                                {form.formState.errors.options?.[idx]?.value?.message}
-                            </FormMessage>
-                        </FormItem>
-                    ))}
-                    <Button
-                        type="button"
-                        variant="secondary"
-                        onClick={() => append({ label: "", value: uuidv4() })}
-                        className="flex items-center gap-2"
-                    >
-                        <Plus size={16} /> Add Option
-                    </Button>
-                    <Button disabled={form.formState.isSubmitting} type="submit">
-                        {form.formState.isSubmitting && (
-                            <LoaderCircle className="animate-spin" />
-                        )}
-                        Update
-                    </Button>
-                </form>
-            </Form>
-        </div>
-    );
+  return (
+    <div className="p-4 space-y-2 border rounded-lg bg-background">
+      <h3 className="font-semibold">Options Editor</h3>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          {fields.map((field, idx) => (
+            <FormItem key={field.id}>
+              <FormLabel>Option {idx + 1}</FormLabel>
+              <div className="flex items-center gap-2">
+                <Input
+                  {...form.register(`options.${idx}.label`)}
+                  placeholder="Label"
+                />
+                <Input
+                  {...form.register(`options.${idx}.value`)}
+                  placeholder="Value"
+                  readOnly
+                  className="w-40"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  onClick={() => remove(idx)}
+                  disabled={fields.length === 1}
+                  aria-label="Remove option"
+                >
+                  <Trash size={16} />
+                </Button>
+              </div>
+              <div className="flex items-center gap-2 mt-2">
+                <Input
+                  {...form.register(`options.${idx}.next`)}
+                  placeholder="Next page id (optional)"
+                  className="w-60"
+                />
+              </div>
+              <FormMessage>
+                {form.formState.errors.options?.[idx]?.label?.message}
+                {form.formState.errors.options?.[idx]?.value?.message}
+                {form.formState.errors.options?.[idx]?.next?.message}
+              </FormMessage>
+            </FormItem>
+          ))}
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={() => append({ label: "", value: uuidv4(), next: "" })}
+            className="flex items-center gap-2"
+          >
+            <Plus size={16} /> Add Option
+          </Button>
+          <Button disabled={form.formState.isSubmitting} type="submit">
+            {form.formState.isSubmitting && (
+              <LoaderCircle className="animate-spin" />
+            )}
+            Update
+          </Button>
+        </form>
+      </Form>
+    </div>
+  );
 };
 
 export default OptionsEditor;

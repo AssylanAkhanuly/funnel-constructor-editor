@@ -21,7 +21,7 @@ const ButtonEditor = (props: JsxEditorProps) => {
     updateNode({
       ...props.mdastNode,
       attributes: [
-        { name: "children", type: "mdxJsxAttribute", value: data.text },
+        { name: "text", type: "mdxJsxAttribute", value: data.text },
       ],
     });
   };

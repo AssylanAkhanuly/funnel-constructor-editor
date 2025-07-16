@@ -16,7 +16,7 @@ import SingleSelectMain from "@/features/funnel-components/Select/ui/SingleSelec
 import { evaluate } from "@mdx-js/mdx";
 import matter from "gray-matter";
 import { Edit, SaveIcon } from "lucide-react";
-import { createElement, useCallback, useEffect, useState } from "react";
+import { createElement, useEffect, useState } from "react";
 import * as runtime from "react/jsx-runtime";
 import remarkGfm from "remark-gfm";
 import { toast } from "sonner";
@@ -33,21 +33,23 @@ function Constructor({
   const [activeTab, setActiveTab] = useState("editor");
   const [markdown, setMarkdown] = useState(page.content);
   const [Preview, setPreview] = useState<React.ComponentType | null>(null);
-  const parseMDX = useCallback(async (content: string) => {
+  const parseMDX = async (content: string) => {
     try {
       const { default: Content } = await evaluate(content, {
         ...runtime,
         useMDXComponents: () => ({
           Image: Media,
-          Button: (props) => {
-            return <Button>{props.children}</Button>;
+          FooterButton: (props) => {
+            return <Button>{props.text}</Button>;
+          },
+          Button: () => { 
+            return <Button>sdf</Button>
           },
           SingleDefaultQuiz: (props: { options: string }) => {
             const options = JSON.parse(props.options) as {
               label: string;
               value: string;
             }[];
-            console.log(options)
             return (
               <SingleSelectMain
                 options={options.map((option) => ({
@@ -67,11 +69,12 @@ function Constructor({
       console.error("MDX parsing error:", error);
       setPreview(() => () => <div>Error parsing markdown</div>);
     }
-  }, []);
+  };
   useEffect(() => {
     const { content } = matter(markdown);
     parseMDX(content);
-  }, [parseMDX, markdown]);
+  }, [markdown]);
+  console.log(markdown);
   return (
     <>
       <Toaster />
