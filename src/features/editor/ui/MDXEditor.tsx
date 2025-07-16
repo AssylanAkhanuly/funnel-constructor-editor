@@ -1,6 +1,12 @@
 "use client";
 // InitializedMDXEditor.tsx
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
   BlockTypeSelect,
   BoldItalicUnderlineToggles,
   Button,
@@ -22,9 +28,10 @@ import {
   type MDXEditorProps,
 } from "@mdxeditor/editor";
 import "@mdxeditor/editor/style.css";
-import { ImageIcon } from "lucide-react";
+import { ImageIcon, MousePointerClickIcon, PlusSquareIcon } from "lucide-react";
 import type { ForwardedRef } from "react";
 import { CustomMDXProps } from "../types";
+import ButtonEditor from "./button-editor";
 import MediaEditor from "./media-editor";
 
 const jsxComponentDescriptors: JsxComponentDescriptor[] = [
@@ -37,6 +44,13 @@ const jsxComponentDescriptors: JsxComponentDescriptor[] = [
     ],
     hasChildren: false,
     Editor: MediaEditor,
+  },
+  {
+    name: "Button",
+    kind: "flow",
+    props: [],
+    hasChildren: true,
+    Editor: ButtonEditor,
   },
 ];
 
@@ -51,6 +65,7 @@ const InsertImage = ({
   return (
     <Button
       title="Insert Upload"
+      className="w-full flex items-center gap-2"
       onClick={() =>
         insertJsx({
           name: "Image",
@@ -63,9 +78,31 @@ const InsertImage = ({
       }
     >
       <ImageIcon className="size-5" />
+      Image
     </Button>
   );
 };
+
+const InsertButton = () => {
+  const insertJsx = usePublisher(insertJsx$);
+  return (
+    <Button
+      title="Insert Button"
+      className="w-full flex items-center gap-2"
+      onClick={() =>
+        insertJsx({
+          name: "Button",
+          kind: "flow",
+          props: {},
+        })
+      }
+    >
+      <MousePointerClickIcon className="size-5" />
+      Button
+    </Button>
+  );
+};
+
 // Only import this to the next file
 export default function InitializedMDXEditor({
   editorRef,
@@ -94,7 +131,19 @@ export default function InitializedMDXEditor({
               <BlockTypeSelect />
               <BoldItalicUnderlineToggles />
               <InsertFrontmatter />
-              <InsertImage quizVersion={quizVersion} pageId={pageId} />
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <PlusSquareIcon />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem>
+                    <InsertImage quizVersion={quizVersion} pageId={pageId} />
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <InsertButton />
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           ),
         }),

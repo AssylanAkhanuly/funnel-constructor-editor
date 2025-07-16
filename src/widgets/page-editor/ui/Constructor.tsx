@@ -43,6 +43,9 @@ function Constructor({
         ...runtime,
         useMDXComponents: () => ({
           Image: Media,
+          Button: (props) => {
+            return <Button>{props.children}</Button>;
+          },
         }),
         remarkPlugins: [remarkGfm],
       });
