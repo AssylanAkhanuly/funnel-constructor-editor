@@ -1,10 +1,13 @@
-import { listFilesInFolder } from "@/shared/lib/s3";
 import Constructor from "@/widgets/page-editor/ui/Constructor";
+import { getPage } from "@/widgets/quiz/actions";
 
-const page = async () => {
-  const pages = await listFilesInFolder();
+const page = async (props: {
+  params: Promise<{ pageId: string; quiz_version: string }>;
+}) => {
+  const params = await props.params;
+  const page = await getPage(params.quiz_version, params.pageId);
 
-  return <Constructor />;
+  return <Constructor page={page} />;
 };
 
 export default page;

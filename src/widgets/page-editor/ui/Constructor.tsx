@@ -6,12 +6,12 @@ import { Edit, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 
 export default function Constructor({
-  pages,
+  page,
 }: {
-  pages: { key: string; content: string }[];
+  page: { key: string; content: string };
 }) {
   const [activeTab, setActiveTab] = useState("editor");
-  const [markdown, setMarkdown] = useState("");
+  const [markdown, setMarkdown] = useState(page.content);
   useEffect(() => {
     // uploadMdxFile("test/1.mdx", markdown);
   }, [markdown]);

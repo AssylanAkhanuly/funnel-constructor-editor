@@ -57,7 +57,7 @@ export async function uploadMdxFile(filename: string, mdxContent: string) {
   console.log("✅ Uploaded:", filename);
 }
 
-export async function listSubfolders(folderPath:string) {
+export async function listSubfolders(folderPath: string) {
   const key = folderPath.endsWith("/") ? folderPath : folderPath + "/";
   const command = new ListObjectsV2Command({
     Bucket: process.env.AWS_BUCKET,
@@ -80,4 +80,16 @@ export async function createFolder(folderPath: string) {
 
   await s3.send(command);
   console.log("📁 Folder created:", key);
+}
+
+export async function getFile(filePath: string) {
+  const command = new GetObjectCommand({
+    Bucket: process.env.AWS_BUCKET,
+    Key: filePath,
+  });
+  const response = await s3.send(command);
+
+  const content = await streamToString(response.Body);
+
+  return { key: filePath, content };
 }

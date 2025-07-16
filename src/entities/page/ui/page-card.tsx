@@ -1,11 +1,15 @@
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle
-} from "@/components/ui/card";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { cva, VariantProps } from "class-variance-authority";
+import { Edit, Settings } from "lucide-react";
+import Link from "next/link";
 import { HTMLAttributes } from "react";
 import { twMerge } from "tailwind-merge";
 
@@ -17,14 +21,16 @@ const variants = cva(["m-2 cursor-pointer transition-all hover:shadow-md"], {
     },
   },
 });
-const   PageCard = ({
+const PageCard = ({
   className,
   state,
   page,
+  quizVersion: quizVersion,
   ...props
 }: VariantProps<typeof variants> &
   HTMLAttributes<HTMLDivElement> & {
-    page: { order: number; type: "teaser" | "quiz" };
+    page: { id: string; order: string; type: "teaser" | "quiz" };
+    quizVersion: string;
   }) => {
   return (
     <Card {...props} className={twMerge(variants({ state, className }))}>
@@ -41,6 +47,22 @@ const   PageCard = ({
               {page.type}
             </Badge>
           </div>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button size={"sm"} variant={"ghost"}>
+                <Settings />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <Link href={`/${quizVersion}/${page.id}`}>
+                <DropdownMenuItem>
+                  Edit
+                  <Edit />
+                </DropdownMenuItem>
+              </Link>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </CardHeader>
       <CardContent>

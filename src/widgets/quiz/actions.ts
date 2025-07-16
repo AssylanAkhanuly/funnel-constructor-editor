@@ -2,17 +2,20 @@
 
 import {
   createFolder,
+  getFile,
   listFilesInFolder,
   listSubfolders,
   quizFolderPath,
   uploadMdxFile,
 } from "@/shared/lib/s3";
 import matter from "gray-matter";
+import { revalidatePath } from "next/cache";
 import { PageType } from "./types";
 export const createQuizVersion = async (name: string) => {
   await createFolder(`${quizFolderPath}/${name}`);
   return;
 };
+
 
 export const createQuizPage = async (
   quizVersion: string,
@@ -32,10 +35,9 @@ order: ${order}
 type: ${type}
 ---
 `;
-
   const filename = `${quizFolderPath}/${quizVersion}/${id}.mdx`;
   await uploadMdxFile(filename, frontmatter);
-  console.log("success");
+  revalidatePath(`/${quizVersion}`);
   return;
 };
 export const listQuizVersions = async () => {
@@ -51,6 +53,11 @@ export const listQuizPages = async (version: string) => {
     .map((file) => ({
       key: file.key as string,
       frontmatter: matter(file.content).data as { id: string; order: string },
-    }));
+    }))
+    .sort((a, b) => Number(a.frontmatter.order) - Number(b.frontmatter.order));
   return quizPages;
 };
+export const getPage = async  (quizVersion:string, pageId:string) => { 
+  const page = await getFile(`${quizFolderPath}/${quizVersion}/${pageId}.mdx`)
+  return page 
+}
