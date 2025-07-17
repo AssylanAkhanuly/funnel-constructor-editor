@@ -1,12 +1,15 @@
 "use client";
 // InitializedMDXEditor.tsx
-import { Button } from "@/components/ui/button";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
 import {
   BlockTypeSelect,
   BoldItalicUnderlineToggles,
@@ -39,6 +42,7 @@ import { CustomMDXProps } from "../types";
 import ButtonEditor from "./button-editor";
 import HeaderEditor from "./header-editor";
 import MediaEditor from "./media-editor";
+import ProgressEditor from "./progress-editor";
 import OptionsEditor from "./single-default-quiz-editor";
 
 const jsxComponentDescriptors: JsxComponentDescriptor[] = [
@@ -67,7 +71,7 @@ const jsxComponentDescriptors: JsxComponentDescriptor[] = [
     Editor: OptionsEditor,
   },
   {
-    name: "Header",
+    name: "PageHeader",
     kind: "flow",
     props: [
       {
@@ -85,6 +89,26 @@ const jsxComponentDescriptors: JsxComponentDescriptor[] = [
     ],
     hasChildren: false,
     Editor: HeaderEditor,
+  },
+  {
+    name: "Progress",
+    kind: "flow",
+    props: [
+      {
+        name: "back",
+        type: "number",
+      },
+      {
+        name: "logo",
+        type: "number",
+      },
+      {
+        name: "burger",
+        type: "number",
+      },
+    ],
+    hasChildren: false,
+    Editor: ProgressEditor,
   },
 ];
 
@@ -169,7 +193,7 @@ const InsertSingleDefault = () => {
     </Button>
   );
 };
-const InsertHeader = () => {
+const InsertPageHeader = () => {
   const insertJsx = usePublisher(insertJsx$);
   return (
     <Button
@@ -179,19 +203,41 @@ const InsertHeader = () => {
       className="flex items-center gap-2"
       onClick={() =>
         insertJsx({
-          name: "Header",
+          name: "PageHeader",
           kind: "flow",
           children: [],
           props: {
-            back: 1,
-            logo: 1,
-            burger: 1,
+            back: "true",
+            logo: "true",
+            burger: "true",
           },
         })
       }
     >
       <CircleQuestionMark className="size-5" />
-   Header
+      Header
+    </Button>
+  );
+};
+const InsertProgress = () => {
+  const insertJsx = usePublisher(insertJsx$);
+  return (
+    <Button
+      variant="ghost"
+      title="Insert Progress"
+      size={"sm"}
+      className="flex items-center gap-2"
+      onClick={() =>
+        insertJsx({
+          name: "Progress",
+          kind: "flow",
+          children: [],
+          props: {},
+        })
+      }
+    >
+      <CircleQuestionMark className="size-5" />
+      Progress
     </Button>
   );
 };
@@ -223,25 +269,36 @@ export default function InitializedMDXEditor({
               <BlockTypeSelect />
               <BoldItalicUnderlineToggles />
               <InsertFrontmatter />
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
+              <AlertDialog>
+                <AlertDialogTrigger>
                   <PlusSquareIcon />
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  <DropdownMenuItem>
-                    <InsertImage quizVersion={quizVersion} pageId={pageId} />
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <InsertButton />
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <InsertSingleDefault />
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <InsertHeader />
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+                </AlertDialogTrigger>
+                <AlertDialogContent className="max-w-3xl md:max-w-5xl">
+                  <AlertDialogHeader>
+                  <AlertDialogTitle>Insert components</AlertDialogTitle>
+                  </AlertDialogHeader>
+                  <div className="grid grid-cols-5">
+                    <AlertDialogAction asChild>
+                      <InsertImage quizVersion={quizVersion} pageId={pageId} />
+                    </AlertDialogAction>
+                    <AlertDialogAction asChild>
+                      <InsertButton />
+                    </AlertDialogAction>
+                    <AlertDialogAction asChild>
+                      <InsertSingleDefault />
+                    </AlertDialogAction>
+                    <AlertDialogAction asChild>
+                      <InsertPageHeader />
+                    </AlertDialogAction>
+                    <AlertDialogAction asChild>
+                      <InsertProgress />
+                    </AlertDialogAction>
+                  </div>
+                  <AlertDialogFooter>
+                    <AlertDialogAction>Done</AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
           ),
         }),

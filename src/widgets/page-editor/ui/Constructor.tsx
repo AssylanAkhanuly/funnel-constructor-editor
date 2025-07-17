@@ -13,6 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Editor } from "@/features/editor/ui";
 import Media from "@/features/editor/ui/media";
 import PageMobileHeader from "@/features/funnel-components/Header/PageMobileHeader";
+import { Progress } from "@/features/funnel-components/Progress/Progress";
 import SingleSelectMain from "@/features/funnel-components/Select/ui/SingleSelectMain";
 import { evaluate } from "@mdx-js/mdx";
 import matter from "gray-matter";
@@ -160,10 +161,8 @@ function Constructor({
                     FooterButton: (props) => {
                       return <Button>{props.text}</Button>;
                     },
-                    Button: () => {
-                      return <Button>sdf</Button>;
-                    },
-                    Header: PageMobileHeader,
+                    PageHeader: PageMobileHeader,
+                    Progress: Progress,
                     SingleDefaultQuiz: (props: { options: string }) => {
                       const options = JSON.parse(props.options) as {
                         label: string;
