@@ -9,6 +9,7 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
+
 import {
   arrayMove,
   horizontalListSortingStrategy,
@@ -18,11 +19,11 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import he from "he";
 import parse from "html-react-parser";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import Xarrow, { useXarrow, Xwrapper } from "react-xarrows";
 import { deleteQuizPage, updateQuizPageFrontmatter } from "../actions";
 import { Page } from "../types";
 import QuizPagesHeader from "./quiz-pages-header";
-
 // Sortable PageCard wrapper
 function SortablePageCard({
   page,
@@ -90,6 +91,7 @@ export default function QuizPagesList({
   const [selectedPage, setSelectedPage] = useState<null | Page>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
   const pagesMap = new Map(pages.map((page) => [page.key, page]));
+  const updateXarrow = useXarrow();
   // Group pages by order (vertical lanes)
   const groupedPages = (() => {
     const grouped = new Map<string, Page[]>();
@@ -154,6 +156,7 @@ export default function QuizPagesList({
         },
       };
     }
+    updateXarrow();
     newPages.map((newPage) => {
       const page = pagesMap.get(newPage.key);
       if (page && newPage.frontmatter.order !== page.frontmatter.order) {
@@ -167,73 +170,6 @@ export default function QuizPagesList({
     setPages(newPages);
   }
 
-  useEffect(() => {
-    pages.forEach((page, index) => {
-      let quizOptions: Array<{
-        label: string;
-        value: string;
-        next?: string;
-      }> = [];
-
-      parse(page.content, {
-        trim: true,
-        replace: (domNode: import("html-react-parser").Element) => {
-          if (
-            domNode.type === "tag" &&
-            domNode.name === "SingleDefaultQuiz".toLowerCase() &&
-            domNode.attribs &&
-            domNode.attribs.options
-          ) {
-            try {
-              const decoded = he.decode(domNode.attribs.options);
-              quizOptions = JSON.parse(decoded);
-            } catch {
-              quizOptions = [];
-            }
-          }
-        },
-      });
-      const currentEl = document.getElementById(page.frontmatter.id);
-      if (currentEl) {
-        quizOptions.forEach((option) => {
-          if (option.next) {
-            const nextEl = document.getElementById(option.next);
-            if (nextEl) {
-              // Create a line between currentEl and nextEl
-              const lineId = `${page.frontmatter.id}-${option.next}-line`;
-              let line = document.getElementById(
-                lineId
-              ) as HTMLDivElement | null;
-              if (!line) {
-                line = document.createElement("div");
-                line.id = lineId;
-                line.style.position = "absolute";
-                line.style.pointerEvents = "none";
-                line.style.background = "#3b82f6";
-                line.style.height = "12px";
-                line.style.zIndex = "40";
-                document.body.appendChild(line);
-              }
-              // Calculate positions
-              const rect1 = currentEl.getBoundingClientRect();
-              const rect2 = nextEl.getBoundingClientRect();
-              const parentRect = { left: 0, top: 0 };
-
-              const x1 = rect1.right - parentRect.left;
-              const y1 = rect1.top + rect1.height / 2 - parentRect.top;
-              const x2 = rect2.left - parentRect.left;
-              const y2 = rect2.top + rect2.height / 2 - parentRect.top;
-              const length = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
-              const angle = Math.atan2(y2 - y1, x2 - x1) * (180 / Math.PI);
-              line.style.width = `${length}px`;
-              console.log(x1,y1)
-              line.style.transform = `translate(${x1}px, ${y1}px) rotate(${angle}deg)`;
-            }
-          }
-        });
-      }
-    });
-  }, [pages]);
   return (
     <div className="w-full min-h-screen bg-gray-50">
       <QuizPagesHeader quizVersion={quizVersion} />
@@ -245,38 +181,89 @@ export default function QuizPagesList({
           onDragEnd={handleDragEnd}
         >
           <div className="max-w-6xl mx-auto space-y-24">
-            {[...groupedPages.entries()].map(([order, groupPages]) => (
-              <SortableContext
-                key={order}
-                items={groupPages.map((p) => p.key)}
-                strategy={horizontalListSortingStrategy}
-              >
-                <div className="flex justify-center gap-6">
-                  {groupPages.map((page) => {
-                    // Extract <SingleDefaultQuiz options="..."/> from markdown content using html-react-parser only
+            <Xwrapper>
+              {[...groupedPages.entries()].map(([order, groupPages]) => (
+                <SortableContext
+                  key={order}
+                  items={groupPages.map((p) => p.key)}
+                  strategy={horizontalListSortingStrategy}
+                >
+                  <div className="flex justify-center gap-6">
+                    {groupPages.map((page) => {
+                      // Extract <SingleDefaultQuiz options="..."/> from markdown content using html-react-parser only
+                      let quizOptions: Array<{
+                        label: string;
+                        value: string;
+                        next?: string;
+                      }> = [];
 
-                    return (
-                      <div
-                        id={page.frontmatter.id}
-                        key={page.key}
-                        className="relative flex flex-col items-center"
-                      >
-                        <SortablePageCard
-                          onDelete={() =>
-                            deleteQuizPage(quizVersion, page.frontmatter.id)
+                      parse(page.content, {
+                        trim: true,
+                        replace: (
+                          domNode: import("html-react-parser").Element
+                        ) => {
+                          if (
+                            domNode.type === "tag" &&
+                            domNode.name ===
+                              "SingleDefaultQuiz".toLowerCase() &&
+                            domNode.attribs &&
+                            domNode.attribs.options
+                          ) {
+                            try {
+                              const decoded = he.decode(
+                                domNode.attribs.options
+                              );
+                              quizOptions = JSON.parse(decoded);
+                            } catch {
+                              quizOptions = [];
+                            }
                           }
-                          quizVersion={quizVersion}
-                          id={page.key}
-                          page={page}
-                          onClick={() => setSelectedPage(page)}
-                          selected={selectedPage?.key === page.key}
-                        />
-                      </div>
-                    );
-                  })}
-                </div>
-              </SortableContext>
-            ))}
+                          return domNode;
+                        },
+                      });
+
+                      return (
+                        <div
+                          id={page.frontmatter.id}
+                          key={page.key}
+                          className="relative flex flex-col items-center"
+                        >
+                          <SortablePageCard
+                            onDelete={() =>
+                              deleteQuizPage(quizVersion, page.frontmatter.id)
+                            }
+                            quizVersion={quizVersion}
+                            id={page.key}
+                            page={page}
+                            onClick={() => setSelectedPage(page)}
+                            selected={selectedPage?.key === page.key}
+                          />
+                          {quizOptions.map((option) => {
+                            console.log(page.frontmatter.id, option.next);
+                            if (option.next)
+                              return (
+                                <Xarrow
+                                  startAnchor={"bottom"}
+                                  endAnchor={"top"}
+                                  key={`${page.key}-${option.next}`}
+                                  start={page.frontmatter.id.toString()}
+                                  end={option.next}
+                                  strokeWidth={1}
+                                  labels={
+                                    <div className="bg-background container p-1 shadow-sm rounded-sm">
+                                      {option.label}
+                                    </div>
+                                  }
+                                />
+                              );
+                          })}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </SortableContext>
+              ))}
+            </Xwrapper>
           </div>
         </DndContext>
       </div>
