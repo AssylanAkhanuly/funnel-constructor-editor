@@ -37,6 +37,7 @@ import {
 import type { ForwardedRef } from "react";
 import { CustomMDXProps } from "../types";
 import ButtonEditor from "./button-editor";
+import HeaderEditor from "./header-editor";
 import MediaEditor from "./media-editor";
 import OptionsEditor from "./single-default-quiz-editor";
 
@@ -62,18 +63,28 @@ const jsxComponentDescriptors: JsxComponentDescriptor[] = [
     name: "SingleDefaultQuiz",
     kind: "flow",
     props: [],
-    hasChildren: true,
+    hasChildren: false,
     Editor: OptionsEditor,
   },
   {
     name: "Header",
     kind: "flow",
-    props: [{
-      name: "backButton",
-      type : "expression"
-    }],
-    hasChildren: true,
-    Editor: OptionsEditor,
+    props: [
+      {
+        name: "back",
+        type: "number",
+      },
+      {
+        name: "logo",
+        type: "number",
+      },
+      {
+        name: "burger",
+        type: "number",
+      },
+    ],
+    hasChildren: false,
+    Editor: HeaderEditor,
   },
 ];
 
@@ -158,7 +169,32 @@ const InsertSingleDefault = () => {
     </Button>
   );
 };
-
+const InsertHeader = () => {
+  const insertJsx = usePublisher(insertJsx$);
+  return (
+    <Button
+      variant="ghost"
+      title="Insert Header"
+      size={"sm"}
+      className="flex items-center gap-2"
+      onClick={() =>
+        insertJsx({
+          name: "Header",
+          kind: "flow",
+          children: [],
+          props: {
+            back: 1,
+            logo: 1,
+            burger: 1,
+          },
+        })
+      }
+    >
+      <CircleQuestionMark className="size-5" />
+   Header
+    </Button>
+  );
+};
 // Only import this to the next file
 export default function InitializedMDXEditor({
   editorRef,
@@ -200,6 +236,9 @@ export default function InitializedMDXEditor({
                   </DropdownMenuItem>
                   <DropdownMenuItem>
                     <InsertSingleDefault />
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <InsertHeader />
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

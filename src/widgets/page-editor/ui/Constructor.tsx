@@ -12,6 +12,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Editor } from "@/features/editor/ui";
 import Media from "@/features/editor/ui/media";
+import PageMobileHeader from "@/features/funnel-components/Header/PageMobileHeader";
 import SingleSelectMain from "@/features/funnel-components/Select/ui/SingleSelectMain";
 import { evaluate } from "@mdx-js/mdx";
 import matter from "gray-matter";
@@ -162,6 +163,7 @@ function Constructor({
                     Button: () => {
                       return <Button>sdf</Button>;
                     },
+                    Header: PageMobileHeader,
                     SingleDefaultQuiz: (props: { options: string }) => {
                       const options = JSON.parse(props.options) as {
                         label: string;
