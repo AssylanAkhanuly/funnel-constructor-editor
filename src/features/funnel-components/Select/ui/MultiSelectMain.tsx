@@ -9,7 +9,7 @@ import {
 import Text from "../../TextOld";
 
 export type MultiSelectCheckboxOptionType = {
-  custom_id: number;
+  custom_id: string;
   file?: string;
   title: string;
 };
@@ -20,7 +20,7 @@ function MultiSelectCheckbox<T extends MultiSelectCheckboxOptionType>({
   className,
 }: {
   onChangeOption: (option: T) => void;
-  selectedOptionIds: number[];
+  selectedOptionIds: string[];
   options: T[];
 } & HTMLAttributes<HTMLDivElement>) {
   const containerRef = useRef<HTMLDivElement>(null);

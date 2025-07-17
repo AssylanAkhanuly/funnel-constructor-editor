@@ -14,6 +14,7 @@ import { Editor } from "@/features/editor/ui";
 import Media from "@/features/editor/ui/media";
 import PageMobileHeader from "@/features/funnel-components/Header/PageMobileHeader";
 import { Progress } from "@/features/funnel-components/Progress/Progress";
+import MultiSelectCheckbox from "@/features/funnel-components/Select/ui/MultiSelectMain";
 import SingleSelectMain from "@/features/funnel-components/Select/ui/SingleSelectMain";
 import { evaluate } from "@mdx-js/mdx";
 import matter from "gray-matter";
@@ -175,6 +176,22 @@ function Constructor({
                             custom_id: option.value,
                           }))}
                           selectedOptionId={undefined}
+                          onChangeOption={() => {}}
+                        />
+                      );
+                    },
+                    MultiSelectCheckbox: (props: { options: string }) => {
+                      const options = JSON.parse(props.options) as {
+                        label: string;
+                        value: string;
+                      }[];
+                      return (
+                        <MultiSelectCheckbox
+                          options={options.map((option) => ({
+                            title: option.label,
+                            custom_id: option.value,
+                          }))}
+                          selectedOptionIds={[]}
                           onChangeOption={() => {}}
                         />
                       );

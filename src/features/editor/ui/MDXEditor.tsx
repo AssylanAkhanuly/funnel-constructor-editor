@@ -38,10 +38,12 @@ import {
   PlusSquareIcon,
 } from "lucide-react";
 import type { ForwardedRef } from "react";
+import { uuidv4 } from "zod";
 import { CustomMDXProps } from "../types";
 import ButtonEditor from "./button-editor";
 import HeaderEditor from "./header-editor";
 import MediaEditor from "./media-editor";
+import MultiSelectCheckboxEditor from "./multi-select-checkbox-editor";
 import ProgressEditor from "./progress-editor";
 import OptionsEditor from "./single-default-quiz-editor";
 
@@ -109,6 +111,18 @@ const jsxComponentDescriptors: JsxComponentDescriptor[] = [
     ],
     hasChildren: false,
     Editor: ProgressEditor,
+  },
+  {
+    name: "MultiSelectCheckbox",
+    kind: "flow",
+    props: [
+      {
+        name: "options",
+        type: "string",
+      },
+    ],
+    hasChildren: false,
+    Editor: MultiSelectCheckboxEditor,
   },
 ];
 
@@ -241,6 +255,30 @@ const InsertProgress = () => {
     </Button>
   );
 };
+const InsertMultiSelectCheckbox = () => {
+  const insertJsx = usePublisher(insertJsx$);
+  return (
+    <Button
+      variant="ghost"
+      title="Insert Progress"
+      size={"sm"}
+      className="flex items-center gap-2"
+      onClick={() =>
+        insertJsx({
+          name: "MultiSelectCheckbox",
+          kind: "flow",
+          children: [],
+          props: {
+            options: JSON.stringify([{ label: "Option 1", value: uuidv4() }]),
+          },
+        })
+      }
+    >
+      <CircleQuestionMark className="size-5" />
+      Multi Select Checkbox
+    </Button>
+  );
+};
 // Only import this to the next file
 export default function InitializedMDXEditor({
   editorRef,
@@ -275,7 +313,7 @@ export default function InitializedMDXEditor({
                 </AlertDialogTrigger>
                 <AlertDialogContent className="max-w-3xl md:max-w-5xl">
                   <AlertDialogHeader>
-                  <AlertDialogTitle>Insert components</AlertDialogTitle>
+                    <AlertDialogTitle>Insert components</AlertDialogTitle>
                   </AlertDialogHeader>
                   <div className="grid grid-cols-5">
                     <AlertDialogAction asChild>
@@ -292,6 +330,9 @@ export default function InitializedMDXEditor({
                     </AlertDialogAction>
                     <AlertDialogAction asChild>
                       <InsertProgress />
+                    </AlertDialogAction>
+                    <AlertDialogAction asChild>
+                      <InsertMultiSelectCheckbox />
                     </AlertDialogAction>
                   </div>
                   <AlertDialogFooter>

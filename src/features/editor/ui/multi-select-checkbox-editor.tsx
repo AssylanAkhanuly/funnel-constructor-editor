@@ -22,7 +22,7 @@ const validator = z.object({
 
 type FormValues = z.infer<typeof validator>;
 
-const OptionsEditor = (props: JsxEditorProps) => {
+const MultiSelectCheckboxEditor = (props: JsxEditorProps) => {
   const updateNode = useMdastNodeUpdater();
   const optionsProp = props.mdastNode.attributes.find(
     (attribute) =>
@@ -31,9 +31,7 @@ const OptionsEditor = (props: JsxEditorProps) => {
   const form = useForm<FormValues>({
     resolver: zodResolver(validator),
     defaultValues: {
-      options: tryParse(optionsProp?.value) || [
-        { label: "", value: uuidv4(), next: "" },
-      ],
+      options: tryParse(optionsProp?.value) || [{ label: "", value: uuidv4() }],
     },
   });
 
@@ -57,7 +55,7 @@ const OptionsEditor = (props: JsxEditorProps) => {
 
   return (
     <div className="p-4 space-y-2 border rounded-lg bg-background">
-      <h3 className="font-semibold">Options Editor</h3>
+      <h3 className="font-semibold">Multi Select Checkbox options editor</h3>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           {fields.map((field, idx) => (
@@ -85,13 +83,7 @@ const OptionsEditor = (props: JsxEditorProps) => {
                   <Trash size={16} />
                 </Button>
               </div>
-              <div className="flex items-center gap-2 mt-2">
-                <Input
-                  {...form.register(`options.${idx}.next`)}
-                  placeholder="Next page id (optional)"
-                  className="w-60"
-                />
-              </div>
+
               <FormMessage>
                 {form.formState.errors.options?.[idx]?.label?.message}
                 {form.formState.errors.options?.[idx]?.value?.message}
@@ -119,4 +111,4 @@ const OptionsEditor = (props: JsxEditorProps) => {
   );
 };
 
-export default OptionsEditor;
+export default MultiSelectCheckboxEditor;
