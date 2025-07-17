@@ -20,6 +20,7 @@ import { createElement, useEffect, useState } from "react";
 import * as runtime from "react/jsx-runtime";
 import remarkGfm from "remark-gfm";
 import { toast } from "sonner";
+import { useDebouncedCallback } from "use-debounce";
 import { saveMdxFile } from "../actions";
 function Constructor({
   page,
@@ -42,8 +43,8 @@ function Constructor({
           FooterButton: (props) => {
             return <Button>{props.text}</Button>;
           },
-          Button: () => { 
-            return <Button>sdf</Button>
+          Button: () => {
+            return <Button>sdf</Button>;
           },
           SingleDefaultQuiz: (props: { options: string }) => {
             const options = JSON.parse(props.options) as {
@@ -70,11 +71,12 @@ function Constructor({
       setPreview(() => () => <div>Error parsing markdown</div>);
     }
   };
+  const debounced = useDebouncedCallback(parseMDX, 2000);
+
   useEffect(() => {
     const { content } = matter(markdown);
-    parseMDX(content);
+    debounced(content);
   }, [markdown]);
-  console.log(markdown);
   return (
     <>
       <Toaster />

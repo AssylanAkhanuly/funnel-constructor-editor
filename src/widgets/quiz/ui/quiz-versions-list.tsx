@@ -6,8 +6,7 @@ import {
   Archive,
   CheckCircle2,
   Search,
-  Trash2,
-  XCircle,
+  XCircle
 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
@@ -116,31 +115,7 @@ export default function QuizVersionsList({
         </tbody>
       </table>
 
-      {/* Footer */}
-      {selectedVersions.size > 0 && (
-        <div className="bg-white border-t px-6 py-3">
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-600">
-              {selectedVersions.size} item
-              {selectedVersions.size !== 1 ? "s" : ""} selected
-            </span>
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm">
-                <Archive className="w-4 h-4 mr-2" />
-                Archive Selected
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="text-red-600 hover:text-red-700"
-              >
-                <Trash2 className="w-4 h-4 mr-2" />
-                Delete Selected
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+    
     </div>
   );
 }

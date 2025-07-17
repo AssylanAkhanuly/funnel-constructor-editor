@@ -2,7 +2,6 @@
 import { Button } from "@/components/ui/button";
 import { Form, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { JsxEditorProps, useMdastNodeUpdater } from "@mdxeditor/editor";
 import { LoaderCircle } from "lucide-react";
@@ -20,9 +19,7 @@ const ButtonEditor = (props: JsxEditorProps) => {
   const onSubmit = (data: z.infer<typeof validator>) => {
     updateNode({
       ...props.mdastNode,
-      attributes: [
-        { name: "text", type: "mdxJsxAttribute", value: data.text },
-      ],
+      attributes: [{ name: "text", type: "mdxJsxAttribute", value: data.text }],
     });
   };
   return (
@@ -32,10 +29,7 @@ const ButtonEditor = (props: JsxEditorProps) => {
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormItem>
             <FormLabel>Text</FormLabel>
-            <div className="space-y-2">
-              <Label htmlFor="file">Upload File</Label>
-              <Input {...form.register("text")} />
-            </div>
+            <Input {...form.register("text")} />
             <FormMessage />
           </FormItem>
 
