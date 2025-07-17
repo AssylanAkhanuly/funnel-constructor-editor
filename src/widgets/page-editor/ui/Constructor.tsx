@@ -16,12 +16,15 @@ import SingleSelectMain from "@/features/funnel-components/Select/ui/SingleSelec
 import { evaluate } from "@mdx-js/mdx";
 import matter from "gray-matter";
 import { Edit, SaveIcon } from "lucide-react";
-import { createElement, useEffect, useState } from "react";
+import { MDXRemote, MDXRemoteSerializeResult } from "next-mdx-remote";
+import { serialize } from "next-mdx-remote/serialize";
+import { useEffect, useState } from "react";
 import * as runtime from "react/jsx-runtime";
 import remarkGfm from "remark-gfm";
 import { toast } from "sonner";
 import { useDebouncedCallback } from "use-debounce";
 import { saveMdxFile } from "../actions";
+import { DEFAULT_USER } from "../const";
 function Constructor({
   page,
   quizVersion,
@@ -72,10 +75,24 @@ function Constructor({
     }
   };
   const debounced = useDebouncedCallback(parseMDX, 2000);
-
+  const [mdxSource, setMdxSource] = useState<MDXRemoteSerializeResult<
+    Record<string, unknown>,
+    Record<string, unknown>
+  > | null>(null);
+  const getMDXSource = async (content: string) => {
+    const mdxSource = await serialize(content, {
+      scope: { user: DEFAULT_USER },
+    });
+    setMdxSource(mdxSource);
+  };
+  const debouncedMDXSource = useDebouncedCallback(getMDXSource, 1000);
+  // useEffect(() => {
+  //   const { content } = matter(markdown);
+  //   debounced(content);
+  // }, [markdown]);
   useEffect(() => {
     const { content } = matter(markdown);
-    debounced(content);
+    debouncedMDXSource(content);
   }, [markdown]);
   return (
     <>
@@ -133,7 +150,37 @@ function Constructor({
               onChange={setMarkdown}
             />
             <div className="flex-1 p-4">
-              {Preview && createElement(Preview)}
+              {/* {Preview && createElement(Preview)} */}
+              {mdxSource && (
+                <MDXRemote
+                  {...mdxSource}
+                  components={{
+                    Image: Media,
+                    FooterButton: (props) => {
+                      return <Button>{props.text}</Button>;
+                    },
+                    Button: () => {
+                      return <Button>sdf</Button>;
+                    },
+                    SingleDefaultQuiz: (props: { options: string }) => {
+                      const options = JSON.parse(props.options) as {
+                        label: string;
+                        value: string;
+                      }[];
+                      return (
+                        <SingleSelectMain
+                          options={options.map((option) => ({
+                            title: option.label,
+                            custom_id: option.value,
+                          }))}
+                          selectedOptionId={undefined}
+                          onChangeOption={() => {}}
+                        />
+                      );
+                    },
+                  }}
+                />
+              )}
             </div>
           </TabsContent>
         </Tabs>

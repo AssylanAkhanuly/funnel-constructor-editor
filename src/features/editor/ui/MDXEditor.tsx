@@ -65,6 +65,16 @@ const jsxComponentDescriptors: JsxComponentDescriptor[] = [
     hasChildren: true,
     Editor: OptionsEditor,
   },
+  {
+    name: "Header",
+    kind: "flow",
+    props: [{
+      name: "backButton",
+      type : "expression"
+    }],
+    hasChildren: true,
+    Editor: OptionsEditor,
+  },
 ];
 
 const InsertImage = ({
