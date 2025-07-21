@@ -1,4 +1,4 @@
-import Constructor from "@/widgets/page-editor/ui/constructor";
+import Constructor from "@/widgets/page-editor/ui/Constructor";
 import { getPage } from "@/widgets/quiz/actions";
 
 const page = async (props: {

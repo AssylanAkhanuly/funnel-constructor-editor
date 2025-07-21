@@ -158,6 +158,9 @@ function Constructor({
                 <MDXRemote
                   {...mdxSource}
                   components={{
+                    Desktop: (props) => {
+                      return <div className="hidden md:block">{props.children}</div>;
+                    },
                     Image: Media,
                     FooterButton: (props) => {
                       return <Button>{props.text}</Button>;

@@ -39,6 +39,7 @@ import {
 } from "lucide-react";
 import type { ForwardedRef } from "react";
 import { uuidv4 } from "zod";
+import { DesktopEditor, ViewMode, viewModePlugin } from "../plugins/view-mode";
 import { CustomMDXProps } from "../types";
 import ButtonEditor from "./button-editor";
 import HeaderEditor from "./header-editor";
@@ -123,6 +124,13 @@ const jsxComponentDescriptors: JsxComponentDescriptor[] = [
     ],
     hasChildren: false,
     Editor: MultiSelectCheckboxEditor,
+  },
+  {
+    name: "Desktop",
+    kind: "flow",
+    props: [],
+    hasChildren: true,
+    Editor: DesktopEditor,
   },
 ];
 
@@ -279,6 +287,7 @@ const InsertMultiSelectCheckbox = () => {
     </Button>
   );
 };
+
 // Only import this to the next file
 export default function InitializedMDXEditor({
   editorRef,
@@ -307,6 +316,7 @@ export default function InitializedMDXEditor({
               <BlockTypeSelect />
               <BoldItalicUnderlineToggles />
               <InsertFrontmatter />
+              <ViewMode />
               <AlertDialog>
                 <AlertDialogTrigger>
                   <PlusSquareIcon />
@@ -345,6 +355,7 @@ export default function InitializedMDXEditor({
         }),
         jsxPlugin({ jsxComponentDescriptors }),
         frontmatterPlugin(),
+        viewModePlugin(),
       ]}
       {...props}
       ref={editorRef}
