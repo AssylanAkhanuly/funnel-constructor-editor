@@ -11,23 +11,25 @@ import { Button } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Editor } from "@/features/editor/ui";
-import Media from "@/features/editor/ui/media";
-import PageMobileHeader from "@/features/funnel-components/Header/PageMobileHeader";
-import { Progress } from "@/features/funnel-components/Progress/Progress";
-import MultiSelectCheckbox from "@/features/funnel-components/Select/ui/MultiSelectMain";
-import SingleSelectMain from "@/features/funnel-components/Select/ui/SingleSelectMain";
-import { evaluate } from "@mdx-js/mdx";
 import matter from "gray-matter";
-import { Edit, SaveIcon } from "lucide-react";
-import { MDXRemote, MDXRemoteSerializeResult } from "next-mdx-remote";
-import { serialize } from "next-mdx-remote/serialize";
-import { useEffect, useState } from "react";
-import * as runtime from "react/jsx-runtime";
-import remarkGfm from "remark-gfm";
+import { Globe, Monitor, SaveIcon, Smartphone, Split } from "lucide-react";
+import { MDXRemote } from "next-mdx-remote";
+import { useState } from "react";
 import { toast } from "sonner";
-import { useDebouncedCallback } from "use-debounce";
 import { saveMdxFile } from "../actions";
-import { DEFAULT_USER } from "../const";
+import { COMPONENTS } from "../const";
+import { useEditor as useConstructorEditor } from "../hooks";
+import { getPlugins } from "../utils";
+
+const extractChildren = (markdown: string, tagName: string) => {
+  const regex = new RegExp(
+    `<${tagName}\\b[^>]*>([\\s\\S]*?)<\\/${tagName}>`,
+    "i"
+  );
+  const match = regex.exec(markdown);
+  return match?.[1]?.trim() || "";
+};
+
 function Constructor({
   page,
   quizVersion,
@@ -37,66 +39,47 @@ function Constructor({
   quizVersion: string;
   pageId: string;
 }) {
-  const [activeTab, setActiveTab] = useState("editor");
-  const [markdown, setMarkdown] = useState(page.content);
-  const [Preview, setPreview] = useState<React.ComponentType | null>(null);
-  const parseMDX = async (content: string) => {
-    try {
-      const { default: Content } = await evaluate(content, {
-        ...runtime,
-        useMDXComponents: () => ({
-          Image: Media,
-          FooterButton: (props) => {
-            return <Button>{props.text}</Button>;
-          },
-          Button: () => {
-            return <Button>sdf</Button>;
-          },
-          SingleDefaultQuiz: (props: { options: string }) => {
-            const options = JSON.parse(props.options) as {
-              label: string;
-              value: string;
-            }[];
-            return (
-              <SingleSelectMain
-                options={options.map((option) => ({
-                  title: option.label,
-                  custom_id: option.value,
-                }))}
-                selectedOptionId={undefined}
-                onChangeOption={() => {}}
-              />
-            );
-          },
-        }),
-        remarkPlugins: [remarkGfm],
-      });
-      setPreview(() => Content);
-    } catch (error) {
-      console.error("MDX parsing error:", error);
-      setPreview(() => () => <div>Error parsing markdown</div>);
+  const [deviceMode, setDeviceMode] = useState<"mobile" | "desktop">("mobile");
+
+  const {
+    markdown: desktopMarkdown,
+    mdxSource: desktopMdxSource,
+    setMarkdown: setDesktopMarkdown,
+  } = useConstructorEditor({
+    initalMarkdown: extractChildren(page.content, "Desktop"),
+  });
+  const {
+    markdown: mobileMarkdown,
+    mdxSource: mobileMdxSource,
+    setMarkdown: setMobileMarkdown,
+  } = useConstructorEditor({
+    initalMarkdown: extractChildren(page.content, "Mobile"),
+  });
+  const {
+    markdown: sharedMarkdown,
+    mdxSource: sharedMdxSource,
+    setMarkdown: setSharedMarkdown,
+  } = useConstructorEditor({
+    initalMarkdown: desktopMarkdown && mobileMarkdown ? "" : page.content,
+  });
+  const [viewMode, setViewMode] = useState<"shared" | "split">(
+    sharedMarkdown ? "shared" : "split"
+  );
+
+  const handleSave = async () => {
+    if (viewMode === "split") {
+      const { data: frontmatter } = matter(page.content);
+      const frontmatterString = Object.entries(frontmatter)
+        .map(([key, value]) => `${key}: ${value}`)
+        .join("\n");
+      const newMarkdown = `---\n${frontmatterString}\n---\n\n<Desktop>\n${desktopMarkdown}\n</Desktop>\n\n<Mobile>\n${mobileMarkdown}\n</Mobile>`;
+      await saveMdxFile(quizVersion, pageId, newMarkdown);
+      toast.success("Saved!");
+    } else {
+      await saveMdxFile(quizVersion, pageId, sharedMarkdown);
+      toast.success("Saved!");
     }
   };
-  const debounced = useDebouncedCallback(parseMDX, 2000);
-  const [mdxSource, setMdxSource] = useState<MDXRemoteSerializeResult<
-    Record<string, unknown>,
-    Record<string, unknown>
-  > | null>(null);
-  const getMDXSource = async (content: string) => {
-    const mdxSource = await serialize(content, {
-      scope: { user: DEFAULT_USER },
-    });
-    setMdxSource(mdxSource);
-  };
-  const debouncedMDXSource = useDebouncedCallback(getMDXSource, 1000);
-  // useEffect(() => {
-  //   const { content } = matter(markdown);
-  //   debounced(content);
-  // }, [markdown]);
-  useEffect(() => {
-    const { content } = matter(markdown);
-    debouncedMDXSource(content);
-  }, [markdown]);
   return (
     <>
       <Toaster />
@@ -120,12 +103,7 @@ function Constructor({
             </BreadcrumbList>
           </Breadcrumb>
           <div className="flex items-center gap-2">
-            <Button
-              onClick={async () => {
-                await saveMdxFile(quizVersion, pageId, markdown);
-                toast.success("Saved!");
-              }}
-            >
+            <Button onClick={handleSave}>
               <SaveIcon />
               Save
             </Button>
@@ -133,76 +111,81 @@ function Constructor({
         </div>
 
         <Tabs
-          value={activeTab}
-          onValueChange={setActiveTab}
+          value={viewMode}
+          onValueChange={(e) => setViewMode(e as "split" | "shared")}
           className="flex-1 flex flex-col"
         >
           <TabsList className="mx-4 mt-4">
-            <TabsTrigger value="editor">
-              <Edit className="w-4 h-4 mr-2" />
-              Editor
+            <TabsTrigger value="shared">
+              <Globe className="w-4 h-4 mr-2" />
+              Shared
+            </TabsTrigger>
+            <TabsTrigger value="split">
+              <Split className="w-4 h-4 mr-2" />
+              Split
             </TabsTrigger>
           </TabsList>
-
-          <TabsContent value="editor" className="flex-1 p-4 flex">
+          <TabsContent value="shared" className="flex-1 p-4 flex">
             <Editor
+              plugins={getPlugins(quizVersion, pageId)}
               quizVersion={quizVersion}
               pageId={pageId}
               className="flex-1"
-              markdown={markdown}
-              onChange={setMarkdown}
+              markdown={sharedMarkdown}
+              onChange={setSharedMarkdown}
             />
             <div className="flex-1 p-4">
-              {/* {Preview && createElement(Preview)} */}
-              {mdxSource && (
-                <MDXRemote
-                  {...mdxSource}
-                  components={{
-                    Desktop: (props) => {
-                      return <div className="hidden md:block">{props.children}</div>;
-                    },
-                    Image: Media,
-                    FooterButton: (props) => {
-                      return <Button>{props.text}</Button>;
-                    },
-                    PageHeader: PageMobileHeader,
-                    Progress: Progress,
-                    SingleDefaultQuiz: (props: { options: string }) => {
-                      const options = JSON.parse(props.options) as {
-                        label: string;
-                        value: string;
-                      }[];
-                      return (
-                        <SingleSelectMain
-                          options={options.map((option) => ({
-                            title: option.label,
-                            custom_id: option.value,
-                          }))}
-                          selectedOptionId={undefined}
-                          onChangeOption={() => {}}
-                        />
-                      );
-                    },
-                    MultiSelectCheckbox: (props: { options: string }) => {
-                      const options = JSON.parse(props.options) as {
-                        label: string;
-                        value: string;
-                      }[];
-                      return (
-                        <MultiSelectCheckbox
-                          options={options.map((option) => ({
-                            title: option.label,
-                            custom_id: option.value,
-                          }))}
-                          selectedOptionIds={[]}
-                          onChangeOption={() => {}}
-                        />
-                      );
-                    },
-                  }}
-                />
+              {sharedMdxSource && (
+                <MDXRemote {...sharedMdxSource} components={COMPONENTS} />
               )}
             </div>
+          </TabsContent>
+          <TabsContent value="split">
+            <Tabs
+              value={deviceMode}
+              onValueChange={(e) => setDeviceMode(e as "desktop" | "mobile")}
+            >
+              <TabsList className="mx-4 ">
+                <TabsTrigger value="desktop">
+                  <Monitor />
+                  Desktop
+                </TabsTrigger>
+                <TabsTrigger value="mobile">
+                  <Smartphone />
+                  Mobile
+                </TabsTrigger>
+              </TabsList>
+              <TabsContent value="desktop" className="flex-1 p-4 flex">
+                <Editor
+                  plugins={getPlugins(quizVersion, pageId)}
+                  quizVersion={quizVersion}
+                  pageId={pageId}
+                  className="flex-1"
+                  markdown={desktopMarkdown}
+                  onChange={setDesktopMarkdown}
+                />
+                <div className="flex-1 p-4">
+                  {desktopMdxSource && (
+                    <MDXRemote {...desktopMdxSource} components={COMPONENTS} />
+                  )}
+                </div>
+              </TabsContent>
+              <TabsContent value="mobile" className="flex-1 p-4 flex">
+                <Editor
+                  quizVersion={quizVersion}
+                  pageId={pageId}
+                  plugins={getPlugins(quizVersion, pageId)}
+                  className="flex-1"
+                  markdown={mobileMarkdown}
+                  onChange={setMobileMarkdown}
+                />
+                <div className="flex-1 p-4">
+                  {mobileMdxSource && (
+                    <MDXRemote {...mobileMdxSource} components={COMPONENTS} />
+                  )}
+                </div>
+              </TabsContent>
+            </Tabs>
           </TabsContent>
         </Tabs>
       </div>

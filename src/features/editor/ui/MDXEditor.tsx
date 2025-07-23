@@ -1,45 +1,22 @@
 "use client";
 // InitializedMDXEditor.tsx
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogContent,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import {
-  BlockTypeSelect,
-  BoldItalicUnderlineToggles,
-  frontmatterPlugin,
-  headingsPlugin,
-  InsertFrontmatter,
   insertJsx$,
   JsxComponentDescriptor,
-  jsxPlugin,
-  linkPlugin,
-  listsPlugin,
-  markdownShortcutPlugin,
   MDXEditor,
-  quotePlugin,
-  toolbarPlugin,
-  UndoRedo,
   usePublisher,
   type MDXEditorMethods,
-  type MDXEditorProps,
+  type MDXEditorProps
 } from "@mdxeditor/editor";
 import "@mdxeditor/editor/style.css";
 import {
   CircleQuestionMark,
   ImageIcon,
-  MousePointerClickIcon,
-  PlusSquareIcon,
+  MousePointerClickIcon
 } from "lucide-react";
 import type { ForwardedRef } from "react";
 import { uuidv4 } from "zod";
-import { DesktopEditor, ViewMode, viewModePlugin } from "../plugins/view-mode";
 import { CustomMDXProps } from "../types";
 import ButtonEditor from "./button-editor";
 import HeaderEditor from "./header-editor";
@@ -125,13 +102,7 @@ const jsxComponentDescriptors: JsxComponentDescriptor[] = [
     hasChildren: false,
     Editor: MultiSelectCheckboxEditor,
   },
-  {
-    name: "Desktop",
-    kind: "flow",
-    props: [],
-    hasChildren: true,
-    Editor: DesktopEditor,
-  },
+  
 ];
 
 const InsertImage = ({
@@ -298,65 +269,6 @@ export default function InitializedMDXEditor({
   CustomMDXProps) {
   return (
     <MDXEditor
-      plugins={[
-        // Example Plugin Usage
-        headingsPlugin({
-          allowedHeadingLevels: [1, 2, 3],
-        }),
-        listsPlugin({
-          options: ["bullet", "number"],
-        }),
-        markdownShortcutPlugin(),
-        linkPlugin(),
-        quotePlugin(),
-        toolbarPlugin({
-          toolbarContents: () => (
-            <div className="flex items-center">
-              <UndoRedo />
-              <BlockTypeSelect />
-              <BoldItalicUnderlineToggles />
-              <InsertFrontmatter />
-              <ViewMode />
-              <AlertDialog>
-                <AlertDialogTrigger>
-                  <PlusSquareIcon />
-                </AlertDialogTrigger>
-                <AlertDialogContent className="max-w-3xl md:max-w-5xl">
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Insert components</AlertDialogTitle>
-                  </AlertDialogHeader>
-                  <div className="grid grid-cols-5">
-                    <AlertDialogAction asChild>
-                      <InsertImage quizVersion={quizVersion} pageId={pageId} />
-                    </AlertDialogAction>
-                    <AlertDialogAction asChild>
-                      <InsertButton />
-                    </AlertDialogAction>
-                    <AlertDialogAction asChild>
-                      <InsertSingleDefault />
-                    </AlertDialogAction>
-                    <AlertDialogAction asChild>
-                      <InsertPageHeader />
-                    </AlertDialogAction>
-                    <AlertDialogAction asChild>
-                      <InsertProgress />
-                    </AlertDialogAction>
-                    <AlertDialogAction asChild>
-                      <InsertMultiSelectCheckbox />
-                    </AlertDialogAction>
-                  </div>
-                  <AlertDialogFooter>
-                    <AlertDialogAction>Done</AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </div>
-          ),
-        }),
-        jsxPlugin({ jsxComponentDescriptors }),
-        frontmatterPlugin(),
-        viewModePlugin(),
-      ]}
       {...props}
       ref={editorRef}
     />

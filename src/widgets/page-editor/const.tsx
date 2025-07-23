@@ -1,3 +1,58 @@
+import { Button } from "@/components/ui/button";
+import Media from "@/features/editor/ui/media";
+import PageMobileHeader from "@/features/funnel-components/Header/PageMobileHeader";
+import { Progress } from "@/features/funnel-components/Progress/Progress";
+import MultiSelectCheckbox from "@/features/funnel-components/Select/ui/MultiSelectMain";
+import SingleSelectMain from "@/features/funnel-components/Select/ui/SingleSelectMain";
+
+
+
+
+export const COMPONENTS = {
+  Desktop: (props) => {
+    return <div className="hidden md:block">{props.children}</div>;
+  },
+  Image: Media,
+  FooterButton: (props) => {
+    return <Button>{props.text}</Button>;
+  },
+  PageHeader: PageMobileHeader,
+  Progress: Progress,
+  SingleDefaultQuiz: (props: { options: string }) => {
+    const options = JSON.parse(props.options) as {
+      label: string;
+      value: string;
+    }[];
+    return (
+      <SingleSelectMain
+        options={options.map((option) => ({
+          title: option.label,
+          custom_id: option.value,
+        }))}
+        selectedOptionId={undefined}
+        onChangeOption={() => {}}
+      />
+    );
+  },
+  MultiSelectCheckbox: (props: { options: string }) => {
+    const options = JSON.parse(props.options) as {
+      label: string;
+      value: string;
+    }[];
+    return (
+      <MultiSelectCheckbox
+        options={options.map((option) => ({
+          title: option.label,
+          custom_id: option.value,
+        }))}
+        selectedOptionIds={[]}
+        onChangeOption={() => {}}
+      />
+    );
+  },
+};
+
+
 export const DEFAULT_USER = {
   ab_test_36: "control",
   token: "guest-token-xyz",
