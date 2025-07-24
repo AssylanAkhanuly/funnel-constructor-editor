@@ -23,7 +23,7 @@ import HeaderEditor from "./header-editor";
 import ImageEditor from "./image-editor";
 import MultiSelectCheckboxEditor from "./multi-select-checkbox-editor";
 import ProgressEditor from "./progress-editor";
-import OptionsEditor from "./single-default-quiz-editor";
+import OptionsEditor from "./single-options-editor";
 
 const jsxComponentDescriptors: JsxComponentDescriptor[] = [
   {

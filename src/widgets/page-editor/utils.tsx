@@ -16,7 +16,7 @@ import ImageEditor from "@/features/editor/ui/image-editor";
 import LottieEditor from "@/features/editor/ui/lottie-editor";
 import MultiSelectCheckboxEditor from "@/features/editor/ui/multi-select-checkbox-editor";
 import ProgressEditor from "@/features/editor/ui/progress-editor";
-import OptionsEditor from "@/features/editor/ui/single-default-quiz-editor";
+import OptionsEditor from "@/features/editor/ui/single-options-editor";
 import {
   BlockTypeSelect,
   BoldItalicUnderlineToggles,
@@ -102,9 +102,13 @@ const InsertButton = () => {
 const InsertSingleQuiz = ({
   label,
   componentName,
+  quizVersion,
+  pageId,
 }: {
   label: string;
   componentName: string;
+  quizVersion: string;
+  pageId: string;
 }) => {
   const insertJsx = usePublisher(insertJsx$);
   return (
@@ -123,6 +127,8 @@ const InsertSingleQuiz = ({
               { label: "Option 1", value: "option1" },
               { label: "Option 2", value: "option2" },
             ]),
+            quizVersion,
+            pageId,
           },
         })
       }
@@ -270,6 +276,13 @@ const jsxComponentDescriptors: JsxComponentDescriptor[] = [
     Editor: OptionsEditor,
   },
   {
+    name: "SingleSelectRectangle",
+    kind: "flow",
+    props: [],
+    hasChildren: false,
+    Editor: OptionsEditor,
+  },
+  {
     name: "PageHeader",
     kind: "flow",
     props: [
@@ -369,14 +382,26 @@ export const getPlugins = (quizVersion: string, pageId: string) => [
               </AlertDialogAction>
               <AlertDialogAction asChild>
                 <InsertSingleQuiz
+                  quizVersion={quizVersion}
+                  pageId={pageId}
                   label="Single Default Quiz"
                   componentName="SingleDefaultQuiz"
                 />
               </AlertDialogAction>
               <AlertDialogAction asChild>
                 <InsertSingleQuiz
+                  quizVersion={quizVersion}
+                  pageId={pageId}
                   label="Single Rating Numeric"
                   componentName="SingleRatingNumeric"
+                />
+              </AlertDialogAction>
+              <AlertDialogAction asChild>
+                <InsertSingleQuiz
+                  quizVersion={quizVersion}
+                  pageId={pageId}
+                  label="Single Select Rectangle"
+                  componentName="SingleSelectRectangle"
                 />
               </AlertDialogAction>
               <AlertDialogAction asChild>
@@ -391,7 +416,6 @@ export const getPlugins = (quizVersion: string, pageId: string) => [
               <AlertDialogAction asChild>
                 <InsertLottie quizVersion={quizVersion} pageId={pageId} />
               </AlertDialogAction>
-          
             </div>
             <AlertDialogFooter>
               <AlertDialogAction>Done</AlertDialogAction>

@@ -22,6 +22,7 @@ import { LoaderCircle } from "lucide-react";
 import { useForm } from "react-hook-form";
 import z from "zod";
 import { uploadMedia } from "../actions";
+import { getAttributeValue } from "../utils";
 export const validator = z.object({
   src: z.string(),
   type: z.union([z.literal("image")]),
@@ -32,20 +33,12 @@ export const validator = z.object({
 
 const ImageEditor = (props: JsxEditorProps) => {
   const updateNode = useMdastNodeUpdater();
-  const getAttributeValue = (name: string): string => {
-    const attr = props.mdastNode.attributes?.find(
-      (attr) => "name" in attr && attr.name === name
-    );
-    if (attr && "value" in attr && typeof attr.value === "string") {
-      return attr.value;
-    }
-    return "";
-  };
-  const quizVersion = getAttributeValue("quizVersion");
-  const pageId = getAttributeValue("pageId");
+
+  const quizVersion = getAttributeValue(props, "quizVersion");
+  const pageId = getAttributeValue(props, "pageId");
   const form = useForm<z.infer<typeof validator>>({
     defaultValues: {
-      src: getAttributeValue("src"),
+      src: getAttributeValue(props, "src"),
       type: "image",
     },
   });

@@ -5,7 +5,7 @@ import { twMerge } from "tailwind-merge";
 import Text from "../../TextOld";
 
 export type SingleGridOptionType = {
-  custom_id: number;
+  custom_id: string;
   file: string;
   title: string;
 };
@@ -16,7 +16,7 @@ function SingleSelectRectangle<T extends SingleGridOptionType>({
   className,
 }: {
   options: T[];
-  selectedOptionId: number | undefined;
+  selectedOptionId: string | undefined;
   onChangeOption: (option: T) => void;
 } & HTMLAttributes<HTMLDivElement>) {
   return (

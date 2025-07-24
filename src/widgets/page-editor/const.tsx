@@ -5,6 +5,7 @@ import { Progress } from "@/features/funnel-components/Progress/Progress";
 import MultiSelectCheckbox from "@/features/funnel-components/Select/ui/MultiSelectMain";
 import SingleSelectMain from "@/features/funnel-components/Select/ui/SingleSelectMain";
 import SingleSelectNumericRate from "@/features/funnel-components/Select/ui/SingleSelectNumericRate";
+import SingleSelectRectangle from "@/features/funnel-components/Select/ui/SingleSelectRectangle";
 import { LottiePlayerSrc } from "@/features/lottie";
 import * as mdx from "@mdx-js/react";
 export const COMPONENTS: React.ComponentProps<
@@ -30,6 +31,24 @@ export const COMPONENTS: React.ComponentProps<
           <span className="text-inherit">completely</span>
         </div>
       </>
+    );
+  },
+  SingleSelectRectangle: (props: { options: string }) => {
+    const options = JSON.parse(props.options) as {
+      label: string;
+      value: string;
+      file: string;
+    }[];
+    return (
+      <SingleSelectRectangle
+        options={options.map((option) => ({
+          title: option.label,
+          custom_id: option.value,
+          file: option.file,
+        }))}
+        selectedOptionId={undefined}
+        onChangeOption={() => {}}
+      />
     );
   },
   Lottie: (props) => {

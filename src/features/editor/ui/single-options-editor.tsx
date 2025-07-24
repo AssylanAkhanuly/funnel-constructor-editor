@@ -9,12 +9,17 @@ import { LoaderCircle, Plus, Trash } from "lucide-react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { v4 as uuidv4 } from "uuid";
 import z from "zod";
+import { uploadMedia } from "../actions";
+import { getAttributeValue } from "../utils";
 
 const validator = z.object({
   options: z.array(
     z.object({
       label: z.string().min(1, "Label is required"),
       value: z.string().min(1, "Value is required"),
+      file: z.any().refine((file) => file instanceof FileList, {
+        message: "File is invalid",
+      }),
       next: z.string().optional(), // next page id (optional)
     })
   ),
@@ -32,7 +37,12 @@ const OptionsEditor = (props: JsxEditorProps) => {
     resolver: zodResolver(validator),
     defaultValues: {
       options: tryParse(optionsProp?.value) || [
-        { label: "", value: uuidv4(), next: "" },
+        {
+          label: "",
+          value: uuidv4(),
+          next: "",
+          file: "",
+        },
       ],
     },
   });
@@ -42,19 +52,33 @@ const OptionsEditor = (props: JsxEditorProps) => {
     name: "options",
   });
 
-  const onSubmit = (data: FormValues) => {
+  const onSubmit = async (data: FormValues) => {
+    const quizVersion = getAttributeValue(props, "quizVersion");
+    const pageId = getAttributeValue(props, "pageId");
+    const options = await Promise.all(
+      data.options.map(async (option) => {
+        const [file] = option.file;
+        if (file) {
+          const url = await uploadMedia(quizVersion, pageId, file);
+          return {
+            ...option,
+            file: url,
+          };
+        }
+        return option
+      })
+    );
     updateNode({
       ...props.mdastNode,
       attributes: [
         {
           name: "options",
           type: "mdxJsxAttribute",
-          value: JSON.stringify(data.options),
+          value: JSON.stringify(options),
         },
       ],
     });
   };
-
   return (
     <div className="p-4 space-y-2 border rounded-lg bg-background">
       <h3 className="font-semibold">Options Editor</h3>
@@ -91,18 +115,28 @@ const OptionsEditor = (props: JsxEditorProps) => {
                   placeholder="Next page id (optional)"
                   className="w-60"
                 />
+                <Input
+                  type="file"
+                  accept=".webp"
+                  {...form.register(`options.${idx}.file`)}
+                  placeholder="File URL (optional)"
+                  className="w-60"
+                />
               </div>
               <FormMessage>
                 {form.formState.errors.options?.[idx]?.label?.message}
                 {form.formState.errors.options?.[idx]?.value?.message}
                 {form.formState.errors.options?.[idx]?.next?.message}
+                {form.formState.errors.options?.[idx]?.file?.message}
               </FormMessage>
             </FormItem>
           ))}
           <Button
             type="button"
             variant="secondary"
-            onClick={() => append({ label: "", value: uuidv4(), next: "" })}
+            onClick={() =>
+              append({ label: "", value: uuidv4(), next: "", file: "" })
+            }
             className="flex items-center gap-2"
           >
             <Plus size={16} /> Add Option
