@@ -1,44 +1,44 @@
 "use client";
 // InitializedMDXEditor.tsx
 import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogContent,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogTrigger,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import ButtonEditor from "@/features/editor/ui/button-editor";
 import HeaderEditor from "@/features/editor/ui/header-editor";
-import MediaEditor from "@/features/editor/ui/media-editor";
+import ImageEditor from "@/features/editor/ui/image-editor";
+import LottieEditor from "@/features/editor/ui/lottie-editor";
 import MultiSelectCheckboxEditor from "@/features/editor/ui/multi-select-checkbox-editor";
 import ProgressEditor from "@/features/editor/ui/progress-editor";
 import OptionsEditor from "@/features/editor/ui/single-default-quiz-editor";
 import {
-    BlockTypeSelect,
-    BoldItalicUnderlineToggles,
-    frontmatterPlugin,
-    headingsPlugin,
-    InsertFrontmatter,
-    insertJsx$,
-    JsxComponentDescriptor,
-    jsxPlugin,
-    linkPlugin,
-    listsPlugin,
-    markdownShortcutPlugin,
-    quotePlugin,
-    toolbarPlugin,
-    UndoRedo,
-    usePublisher,
+  BlockTypeSelect,
+  BoldItalicUnderlineToggles,
+  frontmatterPlugin,
+  headingsPlugin,
+  insertJsx$,
+  JsxComponentDescriptor,
+  jsxPlugin,
+  linkPlugin,
+  listsPlugin,
+  markdownShortcutPlugin,
+  quotePlugin,
+  toolbarPlugin,
+  UndoRedo,
+  usePublisher,
 } from "@mdxeditor/editor";
 import "@mdxeditor/editor/style.css";
 import {
-    CircleQuestionMark,
-    ImageIcon,
-    MousePointerClickIcon,
-    PlusSquareIcon,
+  CircleQuestionMark,
+  ImageIcon,
+  MousePointerClickIcon,
+  PlusSquareIcon,
 } from "lucide-react";
 import { uuidv4 } from "zod";
 
@@ -196,6 +196,37 @@ const InsertMultiSelectCheckbox = () => {
   );
 };
 
+const InsertLottie = ({
+  quizVersion,
+  pageId,
+}: {
+  quizVersion: string;
+  pageId: string;
+}) => {
+  const insertJsx = usePublisher(insertJsx$);
+  return (
+    <Button
+      variant="ghost"
+      title="Insert Progress"
+      size={"sm"}
+      className="flex items-center gap-2"
+      onClick={() =>
+        insertJsx({
+          name: "Lottie",
+          kind: "flow",
+          children: [],
+          props: {
+            quizVersion,
+            pageId,
+          },
+        })
+      }
+    >
+      <CircleQuestionMark className="size-5" />
+      Lottie
+    </Button>
+  );
+};
 const jsxComponentDescriptors: JsxComponentDescriptor[] = [
   {
     name: "Image",
@@ -205,7 +236,7 @@ const jsxComponentDescriptors: JsxComponentDescriptor[] = [
       { name: "mediaType", type: "string" },
     ],
     hasChildren: false,
-    Editor: MediaEditor,
+    Editor: ImageEditor,
   },
   {
     name: "FooterButton",
@@ -273,10 +304,21 @@ const jsxComponentDescriptors: JsxComponentDescriptor[] = [
     hasChildren: false,
     Editor: MultiSelectCheckboxEditor,
   },
+  {
+    name: "Lottie",
+    kind: "flow",
+    props: [
+      {
+        name: "options",
+        type: "string",
+      },
+    ],
+    hasChildren: false,
+    Editor: LottieEditor,
+  },
 ];
 
 export const getPlugins = (quizVersion: string, pageId: string) => [
-  // Example Plugin Usage
   headingsPlugin({
     allowedHeadingLevels: [1, 2, 3],
   }),
@@ -292,7 +334,7 @@ export const getPlugins = (quizVersion: string, pageId: string) => [
         <UndoRedo />
         <BlockTypeSelect />
         <BoldItalicUnderlineToggles />
-        <InsertFrontmatter />
+        {/* <InsertFrontmatter /> */}
         <AlertDialog>
           <AlertDialogTrigger>
             <PlusSquareIcon />
@@ -301,7 +343,7 @@ export const getPlugins = (quizVersion: string, pageId: string) => [
             <AlertDialogHeader>
               <AlertDialogTitle>Insert components</AlertDialogTitle>
             </AlertDialogHeader>
-            <div className="grid grid-cols-5">
+            <div className="grid grid-cols-5 gap-2 items-start">
               <AlertDialogAction asChild>
                 <InsertImage quizVersion={quizVersion} pageId={pageId} />
               </AlertDialogAction>
@@ -319,6 +361,9 @@ export const getPlugins = (quizVersion: string, pageId: string) => [
               </AlertDialogAction>
               <AlertDialogAction asChild>
                 <InsertMultiSelectCheckbox />
+              </AlertDialogAction>
+              <AlertDialogAction asChild>
+                <InsertLottie quizVersion={quizVersion} pageId={pageId} />
               </AlertDialogAction>
             </div>
             <AlertDialogFooter>

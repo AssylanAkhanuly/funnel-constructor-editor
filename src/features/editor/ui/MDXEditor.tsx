@@ -20,7 +20,7 @@ import { uuidv4 } from "zod";
 import { CustomMDXProps } from "../types";
 import ButtonEditor from "./button-editor";
 import HeaderEditor from "./header-editor";
-import MediaEditor from "./media-editor";
+import ImageEditor from "./image-editor";
 import MultiSelectCheckboxEditor from "./multi-select-checkbox-editor";
 import ProgressEditor from "./progress-editor";
 import OptionsEditor from "./single-default-quiz-editor";
@@ -34,7 +34,7 @@ const jsxComponentDescriptors: JsxComponentDescriptor[] = [
       { name: "mediaType", type: "string" },
     ],
     hasChildren: false,
-    Editor: MediaEditor,
+    Editor: ImageEditor,
   },
   {
     name: "FooterButton",

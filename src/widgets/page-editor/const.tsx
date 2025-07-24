@@ -4,11 +4,15 @@ import PageMobileHeader from "@/features/funnel-components/Header/PageMobileHead
 import { Progress } from "@/features/funnel-components/Progress/Progress";
 import MultiSelectCheckbox from "@/features/funnel-components/Select/ui/MultiSelectMain";
 import SingleSelectMain from "@/features/funnel-components/Select/ui/SingleSelectMain";
+import { LottiePlayerSrc } from "@/features/lottie";
+import * as mdx from "@mdx-js/react";
+export const COMPONENTS: React.ComponentProps<
+  typeof mdx.MDXProvider
+>["components"] = {
+  Lottie: (props) => {
+    return <LottiePlayerSrc autoplay keepLastFrame src={props.src} />;
+  },
 
-
-
-
-export const COMPONENTS = {
   Desktop: (props) => {
     return <div className="hidden md:block">{props.children}</div>;
   },
@@ -51,7 +55,6 @@ export const COMPONENTS = {
     );
   },
 };
-
 
 export const DEFAULT_USER = {
   ab_test_36: "control",
