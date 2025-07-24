@@ -58,6 +58,9 @@ export const COMPONENTS: React.ComponentProps<
   Desktop: (props) => {
     return <div className="hidden md:block">{props.children}</div>;
   },
+  Mobile: (props) => {
+    return <div className="block md:hidden">{props.children}</div>;
+  },
   Image: Media,
   FooterButton: (props) => {
     return <Button>{props.text}</Button>;
