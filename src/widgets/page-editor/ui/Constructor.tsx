@@ -83,7 +83,7 @@ function Constructor({
   return (
     <>
       <Toaster />
-      <div className="w-full h-screen flex flex-col bg-gray-50">
+      <div className="w-full min-h-screen flex flex-col bg-gray-50">
         <div className="flex items-center justify-between border-b bg-white p-4">
           <Breadcrumb>
             <BreadcrumbList>
@@ -134,7 +134,10 @@ function Constructor({
               markdown={sharedMarkdown}
               onChange={setSharedMarkdown}
             />
-            <div className="flex-1 p-4">
+            <div className="flex-1 px-4">
+              <div className="py-1.5 px-3 bg-muted rounded-md">
+                <h4 className="text-lg font-medium">Preview</h4>
+              </div>
               {sharedMdxSource && (
                 <MDXRemote {...sharedMdxSource} components={COMPONENTS} />
               )}
@@ -164,7 +167,10 @@ function Constructor({
                   markdown={desktopMarkdown}
                   onChange={setDesktopMarkdown}
                 />
-                <div className="flex-1 p-4">
+                <div className="flex-1 px-4">
+                  <div className="py-1.5 px-3 bg-muted rounded-md">
+                    <h4 className="text-lg font-medium">Preview</h4>
+                  </div>
                   {desktopMdxSource && (
                     <MDXRemote {...desktopMdxSource} components={COMPONENTS} />
                   )}
@@ -179,7 +185,10 @@ function Constructor({
                   markdown={mobileMarkdown}
                   onChange={setMobileMarkdown}
                 />
-                <div className="flex-1 p-4">
+                <div className="flex-1 px-4">
+                  <div className="py-1.5 px-3 bg-muted rounded-md">
+                    <h4 className="text-lg font-medium">Preview</h4>
+                  </div>
                   {mobileMdxSource && (
                     <MDXRemote {...mobileMdxSource} components={COMPONENTS} />
                   )}
