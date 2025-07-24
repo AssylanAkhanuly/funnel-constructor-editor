@@ -3,7 +3,7 @@ import { cva } from "class-variance-authority";
 import { twMerge } from "tailwind-merge";
 
 export type SingleSelectNumericRateOptionType = {
-  custom_id: number;
+  custom_id: string;
   file?: string;
   title: string;
 };
@@ -31,7 +31,7 @@ function SingleSelectNumericRate<T extends SingleSelectNumericRateOptionType>({
   className,
 }: {
   options: T[];
-  selectedOptionId: number | undefined;
+  selectedOptionId: string | undefined;
   onChangeOption: (opiton: T) => void;
   className?: string;
 }) {

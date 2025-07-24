@@ -35,8 +35,11 @@ import {
 } from "@mdxeditor/editor";
 import "@mdxeditor/editor/style.css";
 import {
+  Antenna,
   CircleQuestionMark,
+  Film,
   ImageIcon,
+  LoaderCircle,
   MousePointerClickIcon,
   PlusSquareIcon,
 } from "lucide-react";
@@ -96,7 +99,13 @@ const InsertButton = () => {
     </Button>
   );
 };
-const InsertSingleDefault = () => {
+const InsertSingleQuiz = ({
+  label,
+  componentName,
+}: {
+  label: string;
+  componentName: string;
+}) => {
   const insertJsx = usePublisher(insertJsx$);
   return (
     <Button
@@ -106,7 +115,7 @@ const InsertSingleDefault = () => {
       className="flex items-center gap-2"
       onClick={() =>
         insertJsx({
-          name: "SingleDefaultQuiz",
+          name: componentName,
           kind: "flow",
           children: [],
           props: {
@@ -119,7 +128,7 @@ const InsertSingleDefault = () => {
       }
     >
       <CircleQuestionMark className="size-5" />
-      Single Default Quiz
+      {label}
     </Button>
   );
 };
@@ -144,7 +153,7 @@ const InsertPageHeader = () => {
         })
       }
     >
-      <CircleQuestionMark className="size-5" />
+      <Antenna className="size-5" />
       Header
     </Button>
   );
@@ -166,7 +175,7 @@ const InsertProgress = () => {
         })
       }
     >
-      <CircleQuestionMark className="size-5" />
+      <LoaderCircle className="size-5" />
       Progress
     </Button>
   );
@@ -222,11 +231,12 @@ const InsertLottie = ({
         })
       }
     >
-      <CircleQuestionMark className="size-5" />
+      <Film className="size-5" />
       Lottie
     </Button>
   );
 };
+
 const jsxComponentDescriptors: JsxComponentDescriptor[] = [
   {
     name: "Image",
@@ -247,6 +257,13 @@ const jsxComponentDescriptors: JsxComponentDescriptor[] = [
   },
   {
     name: "SingleDefaultQuiz",
+    kind: "flow",
+    props: [],
+    hasChildren: false,
+    Editor: OptionsEditor,
+  },
+  {
+    name: "SingleRatingNumeric",
     kind: "flow",
     props: [],
     hasChildren: false,
@@ -351,7 +368,16 @@ export const getPlugins = (quizVersion: string, pageId: string) => [
                 <InsertButton />
               </AlertDialogAction>
               <AlertDialogAction asChild>
-                <InsertSingleDefault />
+                <InsertSingleQuiz
+                  label="Single Default Quiz"
+                  componentName="SingleDefaultQuiz"
+                />
+              </AlertDialogAction>
+              <AlertDialogAction asChild>
+                <InsertSingleQuiz
+                  label="Single Rating Numeric"
+                  componentName="SingleRatingNumeric"
+                />
               </AlertDialogAction>
               <AlertDialogAction asChild>
                 <InsertPageHeader />
@@ -365,6 +391,7 @@ export const getPlugins = (quizVersion: string, pageId: string) => [
               <AlertDialogAction asChild>
                 <InsertLottie quizVersion={quizVersion} pageId={pageId} />
               </AlertDialogAction>
+          
             </div>
             <AlertDialogFooter>
               <AlertDialogAction>Done</AlertDialogAction>

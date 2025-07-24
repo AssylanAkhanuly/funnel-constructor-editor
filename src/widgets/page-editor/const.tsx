@@ -4,11 +4,34 @@ import PageMobileHeader from "@/features/funnel-components/Header/PageMobileHead
 import { Progress } from "@/features/funnel-components/Progress/Progress";
 import MultiSelectCheckbox from "@/features/funnel-components/Select/ui/MultiSelectMain";
 import SingleSelectMain from "@/features/funnel-components/Select/ui/SingleSelectMain";
+import SingleSelectNumericRate from "@/features/funnel-components/Select/ui/SingleSelectNumericRate";
 import { LottiePlayerSrc } from "@/features/lottie";
 import * as mdx from "@mdx-js/react";
 export const COMPONENTS: React.ComponentProps<
   typeof mdx.MDXProvider
 >["components"] = {
+  SingleRatingNumeric: (props: { options: string }) => {
+    const options = JSON.parse(props.options) as {
+      label: string;
+      value: string;
+    }[];
+    return (
+      <>
+        <SingleSelectNumericRate
+          options={options.map((option) => ({
+            title: option.label,
+            custom_id: option.value,
+          }))}
+          selectedOptionId={undefined}
+          onChangeOption={() => {}}
+        />
+        <div className="mx-auto mt-4 flex max-w-[450px] items-center justify-between text-[#737E8C]">
+          <span className="text-inherit">not at all</span>
+          <span className="text-inherit">completely</span>
+        </div>
+      </>
+    );
+  },
   Lottie: (props) => {
     return <LottiePlayerSrc autoplay keepLastFrame src={props.src} />;
   },
