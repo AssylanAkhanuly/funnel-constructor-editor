@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import Media from "@/features/editor/ui/media";
 import PageMobileHeader from "@/features/funnel-components/Header/PageMobileHeader";
 import { Progress } from "@/features/funnel-components/Progress/Progress";
@@ -141,6 +142,21 @@ export const COMPONENTS: React.ComponentProps<
         selectedOptionIds={[]}
         onChangeOption={() => {}}
       />
+    );
+  },
+  EmailForm: (props) => {
+    return (
+      <form>
+        <Input />
+        <Input type="checkbox" />
+      </form>
+    );
+  },
+  NameForm: (props) => {
+    return (
+      <form>
+        <Input />
+      </form>
     );
   },
 };

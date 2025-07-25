@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import ButtonEditor from "@/features/editor/ui/button-editor";
+import FormEditor from "@/features/editor/ui/form-editor";
 import HeaderEditor from "@/features/editor/ui/header-editor";
 import ImageEditor from "@/features/editor/ui/image-editor";
 import LottieEditor from "@/features/editor/ui/lottie-editor";
@@ -229,6 +230,34 @@ const InsertMultiSelectCheckbox = ({
     </Button>
   );
 };
+const InsertForm = ({
+  componentName,
+  label,
+}: {
+  componentName: string;
+  label: string;
+}) => {
+  const insertJsx = usePublisher(insertJsx$);
+  return (
+    <Button
+      variant="ghost"
+      title="Insert Progress"
+      size={"sm"}
+      className="flex items-center gap-2 capitalize"
+      onClick={() =>
+        insertJsx({
+          name: componentName,
+          kind: "flow",
+          children: [],
+          props: {},
+        })
+      }
+    >
+      <CircleQuestionMark className="size-5" />
+      {label}
+    </Button>
+  );
+};
 
 const InsertLottie = ({
   quizVersion,
@@ -432,7 +461,7 @@ const jsxComponentDescriptors: JsxComponentDescriptor[] = [
     hasChildren: false,
     Editor: MultiSelectCheckboxEditor,
   },
-    {
+  {
     name: "MultiSelectFlex",
     kind: "flow",
     props: [
@@ -456,7 +485,30 @@ const jsxComponentDescriptors: JsxComponentDescriptor[] = [
     hasChildren: false,
     Editor: LottieEditor,
   },
-
+  {
+    name: "EmailForm",
+    kind: "flow",
+    props: [
+      {
+        type: "string",
+        name: "type",
+      },
+    ],
+    hasChildren: false,
+    Editor: FormEditor,
+  },
+  {
+    name: "NameForm",
+    kind: "flow",
+    props: [
+      {
+        type: "string",
+        name: "type",
+      },
+    ],
+    hasChildren: false,
+    Editor: FormEditor,
+  },
 ];
 
 export const getPlugins = (quizVersion: string, pageId: string) => [
@@ -545,6 +597,12 @@ export const getPlugins = (quizVersion: string, pageId: string) => [
                   quizVersion={quizVersion}
                   pageId={pageId}
                 />
+              </AlertDialogAction>
+              <AlertDialogAction asChild>
+                <InsertForm componentName="EmailForm" label="Email Form" />
+              </AlertDialogAction>
+              <AlertDialogAction asChild>
+                <InsertForm componentName="NameForm" label="Name Form" />
               </AlertDialogAction>
               <AlertDialogAction asChild>
                 <InsertLottie quizVersion={quizVersion} pageId={pageId} />
