@@ -3,7 +3,7 @@ import Image from "next/image";
 import { twMerge } from "tailwind-merge";
 
 export type SingleSelectRateOptionType = {
-  custom_id: number;
+  custom_id: string;
   file?: string;
   title: string;
 };
@@ -14,7 +14,7 @@ function SingleSelectRate<T extends SingleSelectRateOptionType>({
   className,
 }: {
   options: T[];
-  selectedOptionId: number | undefined;
+  selectedOptionId: string | undefined;
   onChangeOption: (opiton: T) => void;
   className?: string;
 }) {

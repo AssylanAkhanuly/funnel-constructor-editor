@@ -193,7 +193,17 @@ const InsertProgress = () => {
     </Button>
   );
 };
-const InsertMultiSelectCheckbox = () => {
+const InsertMultiSelectCheckbox = ({
+  label,
+  componentName,
+  quizVersion,
+  pageId,
+}: {
+  label: string;
+  componentName: string;
+  quizVersion: string;
+  pageId: string;
+}) => {
   const insertJsx = usePublisher(insertJsx$);
   return (
     <Button
@@ -203,17 +213,19 @@ const InsertMultiSelectCheckbox = () => {
       className="flex items-center gap-2"
       onClick={() =>
         insertJsx({
-          name: "MultiSelectCheckbox",
+          name: componentName,
           kind: "flow",
           children: [],
           props: {
             options: JSON.stringify([{ label: "Option 1", value: v4() }]),
+            quizVersion,
+            pageId,
           },
         })
       }
     >
       <CircleQuestionMark className="size-5" />
-      Multi Select Checkbox
+      {label}
     </Button>
   );
 };
@@ -362,6 +374,13 @@ const jsxComponentDescriptors: JsxComponentDescriptor[] = [
     Editor: OptionsEditor,
   },
   {
+    name: "SingleSelectRate",
+    kind: "flow",
+    props: [],
+    hasChildren: false,
+    Editor: OptionsEditor,
+  },
+  {
     name: "PageHeader",
     kind: "flow",
     props: [
@@ -413,6 +432,18 @@ const jsxComponentDescriptors: JsxComponentDescriptor[] = [
     hasChildren: false,
     Editor: MultiSelectCheckboxEditor,
   },
+    {
+    name: "MultiSelectFlex",
+    kind: "flow",
+    props: [
+      {
+        name: "options",
+        type: "string",
+      },
+    ],
+    hasChildren: false,
+    Editor: MultiSelectCheckboxEditor,
+  },
   {
     name: "Lottie",
     kind: "flow",
@@ -425,6 +456,7 @@ const jsxComponentDescriptors: JsxComponentDescriptor[] = [
     hasChildren: false,
     Editor: LottieEditor,
   },
+
 ];
 
 export const getPlugins = (quizVersion: string, pageId: string) => [
@@ -485,13 +517,34 @@ export const getPlugins = (quizVersion: string, pageId: string) => [
                 />
               </AlertDialogAction>
               <AlertDialogAction asChild>
+                <InsertSingleQuiz
+                  quizVersion={quizVersion}
+                  pageId={pageId}
+                  label="Single Select Rate"
+                  componentName="SingleSelectRate"
+                />
+              </AlertDialogAction>
+              <AlertDialogAction asChild>
                 <InsertPageHeader />
               </AlertDialogAction>
               <AlertDialogAction asChild>
                 <InsertProgress />
               </AlertDialogAction>
               <AlertDialogAction asChild>
-                <InsertMultiSelectCheckbox />
+                <InsertMultiSelectCheckbox
+                  label="Multi Select Checkbox"
+                  componentName="MultiSelectCheckbox"
+                  quizVersion={quizVersion}
+                  pageId={pageId}
+                />
+              </AlertDialogAction>
+              <AlertDialogAction asChild>
+                <InsertMultiSelectCheckbox
+                  label="Multi Select Flex"
+                  componentName="MultiSelectFlex"
+                  quizVersion={quizVersion}
+                  pageId={pageId}
+                />
               </AlertDialogAction>
               <AlertDialogAction asChild>
                 <InsertLottie quizVersion={quizVersion} pageId={pageId} />

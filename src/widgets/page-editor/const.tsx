@@ -2,9 +2,11 @@ import { Button } from "@/components/ui/button";
 import Media from "@/features/editor/ui/media";
 import PageMobileHeader from "@/features/funnel-components/Header/PageMobileHeader";
 import { Progress } from "@/features/funnel-components/Progress/Progress";
+import MultiSelectFlex from "@/features/funnel-components/Select/ui/MultipleSelectFlex";
 import MultiSelectCheckbox from "@/features/funnel-components/Select/ui/MultiSelectMain";
 import SingleSelectMain from "@/features/funnel-components/Select/ui/SingleSelectMain";
 import SingleSelectNumericRate from "@/features/funnel-components/Select/ui/SingleSelectNumericRate";
+import SingleSelectRate from "@/features/funnel-components/Select/ui/SingleSelectRate";
 import SingleSelectRectangle from "@/features/funnel-components/Select/ui/SingleSelectRectangle";
 import { LottiePlayerSrc } from "@/features/lottie";
 import * as mdx from "@mdx-js/react";
@@ -43,7 +45,6 @@ export const COMPONENTS: React.ComponentProps<
       file?: string;
     }[];
 
-    console.log(options)
     return (
       <SingleSelectRectangle
         options={options.map((option) => ({
@@ -88,13 +89,48 @@ export const COMPONENTS: React.ComponentProps<
       />
     );
   },
+  SingleSelectRate: (props: { options: string }) => {
+    const options = JSON.parse(props.options) as {
+      label: string;
+      value: string;
+      file?: string;
+    }[];
+    return (
+      <SingleSelectRate
+        options={options.map((option) => ({
+          title: option.label,
+          custom_id: option.value,
+          file: option.file,
+        }))}
+        selectedOptionId={undefined}
+        onChangeOption={() => {}}
+      />
+    );
+  },
+  MultiSelectFlex: (props: { options: string }) => {
+    const options = JSON.parse(props.options) as {
+      label: string;
+      value: string;
+      file?: string;
+    }[];
+    return (
+      <MultiSelectFlex
+        options={options.map((option) => ({
+          title: option.label,
+          custom_id: option.value,
+          file: option.file,
+        }))}
+        selectedOptionIds={[]}
+        onChangeOption={() => {}}
+      />
+    );
+  },
   MultiSelectCheckbox: (props: { options: string }) => {
     const options = JSON.parse(props.options) as {
       label: string;
       value: string;
       file?: string;
     }[];
-    console.log(options)
     return (
       <MultiSelectCheckbox
         options={options.map((option) => ({

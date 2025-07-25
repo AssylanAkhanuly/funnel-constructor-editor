@@ -3,7 +3,7 @@ import { twMerge } from "tailwind-merge";
 import Text from "../../TextOld";
 
 export type MultiSelectFlexOptionType = {
-  custom_id: number;
+  custom_id: string;
   file?: string;
   title: string;
 };
@@ -14,7 +14,7 @@ function MultiSelectFlex<T extends MultiSelectFlexOptionType>({
   className,
 }: {
   onChangeOption: (option: T) => void;
-  selectedOptionIds: number[];
+  selectedOptionIds: string[];
   options: T[];
 } & HTMLAttributes<HTMLDivElement>) {
   return (
@@ -48,7 +48,11 @@ function MultiSelectFlex<T extends MultiSelectFlexOptionType>({
               width="15"
               height="15"
               rx="1.5"
-              fill={selectedOptionIds.includes(option.custom_id) ? "#0057FF" : "white"}
+              fill={
+                selectedOptionIds.includes(option.custom_id)
+                  ? "#0057FF"
+                  : "white"
+              }
               stroke="#0057FF"
             />
             <path
