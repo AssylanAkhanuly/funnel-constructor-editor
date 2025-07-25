@@ -6,7 +6,7 @@ import Text from "../../TextOld";
 
 export type SingleGridOptionType = {
   custom_id: string;
-  file: string;
+  file?: string;
   title: string;
 };
 function SingleSelectRectangle<T extends SingleGridOptionType>({
@@ -38,13 +38,13 @@ function SingleSelectRectangle<T extends SingleGridOptionType>({
           }}
           className="w-full aspect-square p-3 flex flex-col justify-center items-center gap-4 border-m rounded-m shadow-Shadow-1"
         >
-          <Image
+         {option.file &&  <Image
             loading="eager"
             width={38}
             height={38}
             alt="option-image"
             src={option.file}
-          />
+          />}
           <Text className="text-center text-[18px] font-medium whitespace-pre-wrap">
             {option.title}
           </Text>

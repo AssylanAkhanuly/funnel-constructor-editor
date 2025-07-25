@@ -40,8 +40,10 @@ export const COMPONENTS: React.ComponentProps<
     const options = JSON.parse(props.options) as {
       label: string;
       value: string;
-      file: string;
+      file?: string;
     }[];
+
+    console.log(options)
     return (
       <SingleSelectRectangle
         options={options.map((option) => ({

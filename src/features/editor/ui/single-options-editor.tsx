@@ -17,9 +17,12 @@ const validator = z.object({
     z.object({
       label: z.string().min(1, "Label is required"),
       value: z.string().min(1, "Value is required"),
-      file: z.any().refine((file) => file instanceof FileList, {
-        message: "File is invalid",
-      }),
+      file: z.union([
+        z.any().refine((file) => file instanceof FileList, {
+          message: "File is invalid",
+        }),
+        z.null(),
+      ]),
       next: z.string().optional(), // next page id (optional)
     })
   ),
@@ -41,7 +44,7 @@ const OptionsEditor = (props: JsxEditorProps) => {
           label: "",
           value: uuidv4(),
           next: "",
-          file: "",
+          file: null,
         },
       ],
     },
@@ -57,15 +60,17 @@ const OptionsEditor = (props: JsxEditorProps) => {
     const pageId = getAttributeValue(props, "pageId");
     const options = await Promise.all(
       data.options.map(async (option) => {
-        const [file] = option.file;
-        if (file) {
-          const url = await uploadMedia(quizVersion, pageId, file);
-          return {
-            ...option,
-            file: url,
-          };
+        if (option.file) {
+          const [file] = option.file;
+          if (file) {
+            const url = await uploadMedia(quizVersion, pageId, file);
+            return {
+              ...option,
+              file: url,
+            };
+          }
         }
-        return option
+        return { ...option, file: null };
       })
     );
     updateNode({
@@ -135,7 +140,7 @@ const OptionsEditor = (props: JsxEditorProps) => {
             type="button"
             variant="secondary"
             onClick={() =>
-              append({ label: "", value: uuidv4(), next: "", file: "" })
+              append({ label: "", value: uuidv4(), next: "", file: null })
             }
             className="flex items-center gap-2"
           >

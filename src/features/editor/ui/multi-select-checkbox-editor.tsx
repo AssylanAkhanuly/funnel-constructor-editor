@@ -18,7 +18,10 @@ const validator = z.object({
       label: z.string().min(1, "Label is required"),
       value: z.string().min(1, "Value is required"),
       next: z.string().optional(), // next page id (optional)
-      file: z.any().refine((file) => file instanceof FileList),
+      file: z.union([
+        z.any().refine((file) => file instanceof FileList),
+        z.null(),
+      ]),
     })
   ),
 });
@@ -50,15 +53,17 @@ const MultiSelectCheckboxEditor = (props: JsxEditorProps) => {
     const pageId = getAttributeValue(props, "pageId");
     const options = await Promise.all(
       data.options.map(async (option) => {
-        const [file] = option.file;
-        if (file) {
-          const url = await uploadMedia(quizVersion, pageId, file);
-          return {
-            ...option,
-            file: url,
-          };
+        if (option.file) {
+          const [file] = option.file;
+          if (file) {
+            const url = await uploadMedia(quizVersion, pageId, file);
+            return {
+              ...option,
+              file: url,
+            };
+          }
         }
-        return option;
+        return { ...option, file: null };
       })
     );
     updateNode({
@@ -118,13 +123,21 @@ const MultiSelectCheckboxEditor = (props: JsxEditorProps) => {
                 {form.formState.errors.options?.[idx]?.label?.message}
                 {form.formState.errors.options?.[idx]?.value?.message}
                 {form.formState.errors.options?.[idx]?.next?.message}
+                {form.formState.errors.options?.[idx]?.file?.message}
               </FormMessage>
             </FormItem>
           ))}
           <Button
             type="button"
             variant="secondary"
-            onClick={() => append({ label: "", value: uuidv4(), next: "" })}
+            onClick={() =>
+              append({
+                label: "",
+                value: uuidv4(),
+                next: "",
+                file: null,
+              })
+            }
             className="flex items-center gap-2"
           >
             <Plus size={16} /> Add Option
