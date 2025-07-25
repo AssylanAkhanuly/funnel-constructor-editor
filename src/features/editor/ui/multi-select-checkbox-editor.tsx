@@ -9,6 +9,8 @@ import { LoaderCircle, Plus, Trash } from "lucide-react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { v4 as uuidv4 } from "uuid";
 import z from "zod";
+import { uploadMedia } from "../actions";
+import { getAttributeValue } from "../utils";
 
 const validator = z.object({
   options: z.array(
@@ -16,6 +18,7 @@ const validator = z.object({
       label: z.string().min(1, "Label is required"),
       value: z.string().min(1, "Value is required"),
       next: z.string().optional(), // next page id (optional)
+      file: z.any().refine((file) => file instanceof FileList),
     })
   ),
 });
@@ -31,7 +34,9 @@ const MultiSelectCheckboxEditor = (props: JsxEditorProps) => {
   const form = useForm<FormValues>({
     resolver: zodResolver(validator),
     defaultValues: {
-      options: tryParse(optionsProp?.value) || [{ label: "", value: uuidv4() }],
+      options: tryParse(optionsProp?.value) || [
+        { label: "", value: uuidv4(), file: null },
+      ],
     },
   });
 
@@ -40,14 +45,29 @@ const MultiSelectCheckboxEditor = (props: JsxEditorProps) => {
     name: "options",
   });
 
-  const onSubmit = (data: FormValues) => {
+  const onSubmit = async (data: FormValues) => {
+    const quizVersion = getAttributeValue(props, "quizVersion");
+    const pageId = getAttributeValue(props, "pageId");
+    const options = await Promise.all(
+      data.options.map(async (option) => {
+        const [file] = option.file;
+        if (file) {
+          const url = await uploadMedia(quizVersion, pageId, file);
+          return {
+            ...option,
+            file: url,
+          };
+        }
+        return option;
+      })
+    );
     updateNode({
       ...props.mdastNode,
       attributes: [
         {
           name: "options",
           type: "mdxJsxAttribute",
-          value: JSON.stringify(data.options),
+          value: JSON.stringify(options),
         },
       ],
     });
@@ -72,6 +92,7 @@ const MultiSelectCheckboxEditor = (props: JsxEditorProps) => {
                   readOnly
                   className="w-40"
                 />
+
                 <Button
                   type="button"
                   variant="outline"
@@ -82,6 +103,15 @@ const MultiSelectCheckboxEditor = (props: JsxEditorProps) => {
                 >
                   <Trash size={16} />
                 </Button>
+              </div>
+              <div className="flex items-center gap-2">
+                <Input
+                  type="file"
+                  accept=".webp"
+                  {...form.register(`options.${idx}.file`)}
+                  placeholder="File URL (optional)"
+                  className="w-60"
+                />
               </div>
 
               <FormMessage>

@@ -65,7 +65,6 @@ function Constructor({
   const [viewMode, setViewMode] = useState<"shared" | "split">(
     sharedMarkdown ? "shared" : "split"
   );
-
   const handleSave = async () => {
     if (viewMode === "split") {
       const { data: frontmatter } = matter(page.content);
@@ -80,6 +79,7 @@ function Constructor({
       toast.success("Saved!");
     }
   };
+  console.log(mobileMarkdown)
   return (
     <>
       <Toaster />

@@ -29,12 +29,18 @@ import {
   listsPlugin,
   markdownShortcutPlugin,
   quotePlugin,
+  rootEditor$,
   toolbarPlugin,
   UndoRedo,
+  useCellValue,
   usePublisher,
 } from "@mdxeditor/editor";
 import "@mdxeditor/editor/style.css";
+import { $getSelection, $isRangeSelection } from "lexical";
 import {
+  AlignCenter,
+  AlignLeft,
+  AlignRight,
   Antenna,
   CircleQuestionMark,
   Film,
@@ -43,7 +49,8 @@ import {
   MousePointerClickIcon,
   PlusSquareIcon,
 } from "lucide-react";
-import { uuidv4 } from "zod";
+import { CSSProperties } from "react";
+import { v4 } from "uuid";
 
 const InsertImage = ({
   quizVersion,
@@ -200,7 +207,7 @@ const InsertMultiSelectCheckbox = () => {
           kind: "flow",
           children: [],
           props: {
-            options: JSON.stringify([{ label: "Option 1", value: uuidv4() }]),
+            options: JSON.stringify([{ label: "Option 1", value: v4() }]),
           },
         })
       }
@@ -243,6 +250,78 @@ const InsertLottie = ({
   );
 };
 
+const Align = () => {
+  const editor = useCellValue(rootEditor$);
+
+  const alignText = (textAlign: CSSProperties["textAlign"]) => {
+    editor?.update(() => {
+      const selection = $getSelection();
+      if ($isRangeSelection(selection)) {
+        // const nodes = selection?.getNodes();
+        // nodes?.map((node) => {
+        //   if ($isParagraphNode(node) || node.getType() === "heading") {
+        //     const parent = node.getParent();
+        //     if ($isGenericHTMLNode(parent) && parent.getTag() === "div") {
+        //       parent.updateAttributes([
+        //         {
+        //           type: "mdxJsxAttribute",
+        //           name: "className",
+        //           value: "text-center",
+        //         },
+        //       ]);
+        //     } else {
+        //       const parent = $createGenericHTMLNode(
+        //         "div",
+        //         "mdxJsxFlowElement",
+        //         [
+        //           {
+        //             type: "mdxJsxAttribute",
+        //             name: "className",
+        //             value: "text-center",
+        //           },
+        //         ]
+        //       );
+        //       parent.set
+        //     }
+        //   }
+        // });
+      } else {
+        console.log(selection);
+      }
+    });
+  };
+  return (
+    <div className="flex items-center gap-2">
+      <Button
+        variant="ghost"
+        title="Align Center"
+        size={"sm"}
+        className="flex items-center gap-0.5"
+        onClick={() => alignText("left")}
+      >
+        <AlignLeft className="size-5" />
+      </Button>
+      <Button
+        variant="ghost"
+        title="Align Center"
+        size={"sm"}
+        className="flex items-center gap-2"
+        onClick={() => alignText("center")}
+      >
+        <AlignCenter className="size-5" />
+      </Button>
+      <Button
+        variant="ghost"
+        title="Align Center"
+        size={"sm"}
+        className="flex items-center gap-2"
+        onClick={() => alignText("right")}
+      >
+        <AlignRight className="size-5" />
+      </Button>
+    </div>
+  );
+};
 const jsxComponentDescriptors: JsxComponentDescriptor[] = [
   {
     name: "Image",
@@ -364,6 +443,7 @@ export const getPlugins = (quizVersion: string, pageId: string) => [
         <UndoRedo />
         <BlockTypeSelect />
         <BoldItalicUnderlineToggles />
+        <Align />
         {/* <InsertFrontmatter /> */}
         <AlertDialog>
           <AlertDialogTrigger>

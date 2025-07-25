@@ -11,6 +11,9 @@ import * as mdx from "@mdx-js/react";
 export const COMPONENTS: React.ComponentProps<
   typeof mdx.MDXProvider
 >["components"] = {
+  TextAlign: (props) => {
+    return <div style={{ textAlign: props.align }}>{props.children}</div>;
+  },
   SingleRatingNumeric: (props: { options: string }) => {
     const options = JSON.parse(props.options) as {
       label: string;
@@ -87,12 +90,15 @@ export const COMPONENTS: React.ComponentProps<
     const options = JSON.parse(props.options) as {
       label: string;
       value: string;
+      file?: string;
     }[];
+    console.log(options)
     return (
       <MultiSelectCheckbox
         options={options.map((option) => ({
           title: option.label,
           custom_id: option.value,
+          file: option.file,
         }))}
         selectedOptionIds={[]}
         onChangeOption={() => {}}
